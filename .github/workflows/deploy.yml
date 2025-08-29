@@ -42,8 +42,10 @@ jobs:
           cp -r demo/* public/
           # Copy CNAME file for custom domain
           cp CNAME public/
-          # Update CSS reference path in demo
+          # Update reference paths in demo
           sed -i 's|../dist/chromana.css|./chromana.css|g' public/index.html
+          # Update JSON path in JavaScript file
+          sed -i "s|'../dist/chromana-icons.json'|'./chromana-icons.json'|g" public/script.js
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

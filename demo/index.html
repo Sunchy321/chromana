@@ -1,227 +1,58 @@
 <!DOCTYPE html>
-<html lang="zh-cn">
+<html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chromana - TCG符号字体演示</title>
-  <link rel="stylesheet" href="../dist/chromana.css">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-        Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      line-height: 1.6;
-      color: #333;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 10px;
-    }
-
-    h2 {
-      font-size: 1.8rem;
-      margin: 30px 0 15px;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 10px;
-    }
-
-    .description {
-      font-size: 1.2rem;
-      color: #666;
-      margin-bottom: 20px;
-    }
-
-    .section {
-      margin-bottom: 40px;
-    }
-
-    .icon-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 20px;
-    }
-
-    .icon-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      border-radius: 8px;
-      border: 1px solid #eee;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    .icon-item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .icon-display {
-      font-size: 48px;
-      margin-bottom: 10px;
-    }
-
-    .icon-name {
-      font-size: 14px;
-      color: #666;
-    }
-
-    .example-text {
-      font-size: 32px;
-      margin-top: 20px;
-      padding: 20px;
-      background-color: #f9f9f9;
-      border-radius: 8px;
-      text-align: center;
-      font-family: 'Chromana', sans-serif;
-    }
-
-    .usage-container {
-      background-color: #f9f9f9;
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      overflow: auto;
-    }
-
-    code {
-      font-family: monospace;
-      background-color: #f1f1f1;
-      padding: 2px 4px;
-      border-radius: 3px;
-    }
-
-    pre {
-      background-color: #f1f1f1;
-      padding: 15px;
-      border-radius: 5px;
-      overflow: auto;
-    }
-
-    .ligature-demo {
-      margin-top: 30px;
-      padding: 20px;
-      background-color: #f9f9f9;
-      border-radius: 8px;
-    }
-
-    .text-input {
-      width: 100%;
-      padding: 15px;
-      font-size: 24px;
-      margin-bottom: 20px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-    }
-
-    .ligature-display {
-      font-family: 'Chromana';
-      font-size: 48px;
-      padding: 20px;
-      background-color: #fff;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      min-height: 100px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chromana - TCG Symbol Font Demo</title>
+    <link rel="stylesheet" href="../dist/chromana.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-  <header>
-    <h1>Chromana</h1>
-    <p class="description">一个带有连字功能的TCG符号字体</p>
-  </header>
+    <header>
+        <h1>Chromana</h1>
+        <p class="description">A TCG symbol font with ligature support</p>
+    </header>
 
-  <div class="section">
-    <h2>可用图标</h2>
-    <div class="icon-grid" id="iconGrid"></div>
-  </div>
-
-  <div class="section">
-    <h2>连字(Ligature)演示</h2>
-    <p>输入图标名称以查看连字效果：</p>
-    <div class="ligature-demo">
-      <input type="text" class="text-input" id="textInput" placeholder="尝试输入：circle, square, triangle..." />
-      <div class="ligature-display" id="ligatureDisplay">circle square diamond triangle cross hourglass</div>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2>使用方法</h2>
-
-    <h3>1. 引入CSS</h3>
-    <div class="usage-container">
-      <pre>&lt;link rel="stylesheet" href="path/to/chromana.css"&gt;</pre>
+    <div class="section">
+        <h2>Available Icons</h2>
+        <div class="icon-grid" id="iconGrid"></div>
     </div>
 
-    <h3>2. 使用CSS类</h3>
-    <div class="usage-container">
-      <pre>&lt;i class="cm cm-circle"&gt;&lt;/i&gt;
+    <div class="section">
+        <h2>Ligature Demo</h2>
+        <p>Type icon names to see the ligature effect:</p>
+        <div class="ligature-demo">
+            <input type="text" class="text-input" id="textInput" placeholder="Try typing: circle, square, triangle..." />
+            <div class="ligature-display" id="ligatureDisplay">circle square diamond triangle cross hourglass</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Usage</h2>
+
+        <h3>1. Include CSS</h3>
+        <div class="usage-container">
+            <pre>&lt;link rel="stylesheet" href="path/to/chromana.css"&gt;</pre>
+        </div>
+
+        <h3>2. Using CSS Classes</h3>
+        <div class="usage-container">
+            <pre>&lt;i class="cm cm-circle"&gt;&lt;/i&gt;
 &lt;i class="cm cm-square"&gt;&lt;/i&gt;
 &lt;i class="cm cm-triangle"&gt;&lt;/i&gt;</pre>
-    </div>
+        </div>
 
-    <h3>3. 使用连字(Ligature)</h3>
-    <div class="usage-container">
-      <pre>&lt;span class="cm"&gt;circle&lt;/span&gt;
+        <h3>3. Using Ligatures</h3>
+        <div class="usage-container">
+            <pre>&lt;span class="cm"&gt;circle&lt;/span&gt;
 &lt;span class="cm"&gt;square&lt;/span&gt;
 &lt;span class="cm"&gt;triangle&lt;/span&gt;</pre>
+        </div>
     </div>
-  </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // 加载图标JSON数据
-      fetch('../dist/icons.json')
-        .then(response => response.json())
-        .then(data => {
-          const iconGrid = document.getElementById('iconGrid');
-
-          // 动态创建图标列表
-          data.icons.forEach(icon => {
-            const iconItem = document.createElement('div');
-            iconItem.className = 'icon-item';
-
-            const iconDisplay = document.createElement('span');
-            iconDisplay.className = `cm ${icon.class}`;
-            iconDisplay.classList.add('icon-display');
-
-            const iconName = document.createElement('span');
-            iconName.className = 'icon-name';
-            iconName.textContent = icon.name;
-
-            iconItem.appendChild(iconDisplay);
-            iconItem.appendChild(iconName);
-            iconGrid.appendChild(iconItem);
-          });
-        })
-        .catch(error => {
-          console.error('无法加载图标数据:', error);
-          document.getElementById('iconGrid').innerHTML = '<p>加载图标数据时出错。请先运行构建脚本 (npm run build)。</p>';
-        });
-
-      // 连字演示功能
-      const textInput = document.getElementById('textInput');
-      const ligatureDisplay = document.getElementById('ligatureDisplay');
-
-      textInput.addEventListener('input', () => {
-        ligatureDisplay.textContent = textInput.value;
-      });
-    });
-  </script>
+    <script src="script.js"></script>
 </body>
+
 </html>
