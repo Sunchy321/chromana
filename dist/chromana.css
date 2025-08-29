@@ -1,0 +1,32 @@
+@font-face {
+  font-family: 'Chromana Chromana';
+  src: url('./chromana.eot');
+  src: url('./chromana.eot?#iefix') format('embedded-opentype'),
+       url('./chromana.woff2') format('woff2'),
+       url('./chromana.woff') format('woff'),
+       url('./chromana.ttf') format('truetype'),
+       url('./chromana.svg#chromana') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.cm {
+  font-family: 'Chromana Chromana';
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-ligatures: common-ligatures;
+  text-transform: none;
+}
+
+/* Icon class list */
+.cm-cross::before { content: "cm-cross"; }
+.cm-diamond::before { content: "cm-diamond"; }
+.cm-square::before { content: "cm-square"; }
+.cm-circle::before { content: "cm-circle"; }
+.cm-hourglass::before { content: "cm-hourglass"; }
+.cm-triangle::before { content: "cm-triangle"; }

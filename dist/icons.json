@@ -1,0 +1,40 @@
+{
+  "icons": [
+    {
+      "name": "cross",
+      "class": "cm-cross",
+      "ligature": "cross",
+      "game": "Common"
+    },
+    {
+      "name": "diamond",
+      "class": "cm-diamond",
+      "ligature": "diamond",
+      "game": "Common"
+    },
+    {
+      "name": "square",
+      "class": "cm-square",
+      "ligature": "square",
+      "game": "Common"
+    },
+    {
+      "name": "circle",
+      "class": "cm-circle",
+      "ligature": "circle",
+      "game": "Common"
+    },
+    {
+      "name": "hourglass",
+      "class": "cm-hourglass",
+      "ligature": "hourglass",
+      "game": "Common"
+    },
+    {
+      "name": "triangle",
+      "class": "cm-triangle",
+      "ligature": "triangle",
+      "game": "Common"
+    }
+  ]
+}
