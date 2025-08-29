@@ -7,7 +7,8 @@
     "build": "bun scripts/build.ts",
     "clean": "rimraf dist",
     "type-check": "tsc --noEmit",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs"
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs",
+    "preview": "bun serve --port 3000 demo"
   },
   "keywords": [
     "font",

@@ -74,19 +74,19 @@ bun install
 bun run build
 ```
 
-### 启动演示服务器
+### 预览演示页面
 
 ```bash
-bun run start
-```
-
-### 开发模式（热重载）
-
-```bash
-bun run dev
+bun run preview
 ```
 
 访问 http://localhost:3000 查看演示页面。
+
+### GitHub Pages Deployment
+
+This project has been configured with GitHub Actions to automatically build and deploy to GitHub Pages when pushing to the master branch.
+
+You can access the online demo at https://font.tcg.cards.
 
 ### 类型检查
 
