@@ -1,0 +1,11 @@
+[install]
+dev = true
+
+registry = "https://registry.npmjs.org"
+
+[test]
+
+[debug]
+jsc = false
+
+[run]
