@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chromana-magic Icon Demo</title>
+  <link rel="stylesheet" href="./magic.css">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+    }
+    .icons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .icon-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      padding: 16px 8px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    .icon-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .magic-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+      color: #333;
+    }
+    .icon-name {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 4px;
+      word-break: break-word;
+    }
+    .icon-code {
+      font-size: 10px;
+      color: #999;
+      font-family: monospace;
+      background-color: #f0f0f0;
+      padding: 2px 4px;
+      border-radius: 3px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <h1>Chromana-magic Icons</h1>
+  <div class="icons-grid">
+    <div class="icon-item">
+      <i class="magic-icon">{W}</i>
+      <div class="icon-name">white</div>
+      <div class="icon-code">{W}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{U}</i>
+      <div class="icon-name">blue</div>
+      <div class="icon-code">{U}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{B}</i>
+      <div class="icon-name">black</div>
+      <div class="icon-code">{B}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{R}</i>
+      <div class="icon-name">red</div>
+      <div class="icon-code">{R}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{G}</i>
+      <div class="icon-name">green</div>
+      <div class="icon-code">{G}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{C}</i>
+      <div class="icon-name">colorless</div>
+      <div class="icon-code">{C}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{T}</i>
+      <div class="icon-name">tap</div>
+      <div class="icon-code">{T}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{Q}</i>
+      <div class="icon-name">untap</div>
+      <div class="icon-code">{Q}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{E}</i>
+      <div class="icon-name">energy</div>
+      <div class="icon-code">{E}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{CHAOS}</i>
+      <div class="icon-name">chaos</div>
+      <div class="icon-code">{CHAOS}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{PW}</i>
+      <div class="icon-name">planeswalker</div>
+      <div class="icon-code">{PW}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{0}</i>
+      <div class="icon-name">0</div>
+      <div class="icon-code">{0}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{1}</i>
+      <div class="icon-name">1</div>
+      <div class="icon-code">{1}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{2}</i>
+      <div class="icon-name">2</div>
+      <div class="icon-code">{2}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{3}</i>
+      <div class="icon-name">3</div>
+      <div class="icon-code">{3}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{4}</i>
+      <div class="icon-name">4</div>
+      <div class="icon-code">{4}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{5}</i>
+      <div class="icon-name">5</div>
+      <div class="icon-code">{5}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{6}</i>
+      <div class="icon-name">6</div>
+      <div class="icon-code">{6}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{7}</i>
+      <div class="icon-name">7</div>
+      <div class="icon-code">{7}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{8}</i>
+      <div class="icon-name">8</div>
+      <div class="icon-code">{8}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{9}</i>
+      <div class="icon-name">9</div>
+      <div class="icon-code">{9}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{10}</i>
+      <div class="icon-name">10</div>
+      <div class="icon-code">{10}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{11}</i>
+      <div class="icon-name">11</div>
+      <div class="icon-code">{11}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{12}</i>
+      <div class="icon-name">12</div>
+      <div class="icon-code">{12}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{13}</i>
+      <div class="icon-name">13</div>
+      <div class="icon-code">{13}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{14}</i>
+      <div class="icon-name">14</div>
+      <div class="icon-code">{14}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{15}</i>
+      <div class="icon-name">15</div>
+      <div class="icon-code">{15}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{16}</i>
+      <div class="icon-name">16</div>
+      <div class="icon-code">{16}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{17}</i>
+      <div class="icon-name">17</div>
+      <div class="icon-code">{17}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{18}</i>
+      <div class="icon-name">18</div>
+      <div class="icon-code">{18}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{19}</i>
+      <div class="icon-name">19</div>
+      <div class="icon-code">{19}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{20}</i>
+      <div class="icon-name">20</div>
+      <div class="icon-code">{20}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{100}</i>
+      <div class="icon-name">100</div>
+      <div class="icon-code">{100}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{1000000}</i>
+      <div class="icon-name">1000000</div>
+      <div class="icon-code">{1000000}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{W/U}</i>
+      <div class="icon-name">white-blue</div>
+      <div class="icon-code">{W/U}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{W/B}</i>
+      <div class="icon-name">white-black</div>
+      <div class="icon-code">{W/B}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{U/B}</i>
+      <div class="icon-name">blue-black</div>
+      <div class="icon-code">{U/B}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{U/R}</i>
+      <div class="icon-name">blue-red</div>
+      <div class="icon-code">{U/R}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{B/R}</i>
+      <div class="icon-name">black-red</div>
+      <div class="icon-code">{B/R}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{B/G}</i>
+      <div class="icon-name">black-green</div>
+      <div class="icon-code">{B/G}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{R/G}</i>
+      <div class="icon-name">red-green</div>
+      <div class="icon-code">{R/G}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{R/W}</i>
+      <div class="icon-name">red-white</div>
+      <div class="icon-code">{R/W}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{G/W}</i>
+      <div class="icon-name">green-white</div>
+      <div class="icon-code">{G/W}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{G/U}</i>
+      <div class="icon-name">green-blue</div>
+      <div class="icon-code">{G/U}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{W/P}</i>
+      <div class="icon-name">white-phyrexian</div>
+      <div class="icon-code">{W/P}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{U/P}</i>
+      <div class="icon-name">blue-phyrexian</div>
+      <div class="icon-code">{U/P}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{B/P}</i>
+      <div class="icon-name">black-phyrexian</div>
+      <div class="icon-code">{B/P}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{R/P}</i>
+      <div class="icon-name">red-phyrexian</div>
+      <div class="icon-code">{R/P}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{G/P}</i>
+      <div class="icon-name">green-phyrexian</div>
+      <div class="icon-code">{G/P}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{X}</i>
+      <div class="icon-name">x</div>
+      <div class="icon-code">{X}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{Y}</i>
+      <div class="icon-name">y</div>
+      <div class="icon-code">{Y}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{Z}</i>
+      <div class="icon-name">z</div>
+      <div class="icon-code">{Z}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{∞}</i>
+      <div class="icon-name">infinity</div>
+      <div class="icon-code">{∞}</div>
+    </div>
+    <div class="icon-item">
+      <i class="magic-icon">{½}</i>
+      <div class="icon-name">half</div>
+      <div class="icon-code">{½}</div>
+    </div>
+  </div>
+</body>
+</html>

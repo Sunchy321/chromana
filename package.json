@@ -1,15 +1,23 @@
 {
   "name": "chromana",
   "version": "1.0.0",
-  "description": "A font representing TCG symbols with ligature support",
+  "author": "Sunchy321",
   "main": "dist/chromana.css",
-  "scripts": {
-    "build": "bun scripts/build.ts",
-    "clean": "rimraf dist",
-    "type-check": "tsc --noEmit",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs",
-    "preview": "bun serve --port 3000 demo"
+  "devDependencies": {
+    "@eslint/js": "^9.34.0",
+    "@stylistic/eslint-plugin": "^5.2.3",
+    "@types/bun": "^1.2.21",
+    "@types/node": "^24.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.41.0",
+    "@typescript-eslint/parser": "^8.41.0",
+    "bun-types": "^1.2.21",
+    "chalk": "^5.6.0",
+    "eslint": "^9.34.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.41.0"
   },
+  "description": "A font representing TCG symbols with ligature support",
   "keywords": [
     "font",
     "icon",
@@ -17,34 +25,15 @@
     "ligature",
     "tcg"
   ],
-  "author": "Sunchy321",
   "license": "MIT",
-  "dependencies": {},
-  "devDependencies": {
-    "@eslint/js": "^9.34.0",
-    "@iarna/toml": "^2.2.5",
-    "@stylistic/eslint-plugin": "^5.2.3",
-    "@types/fs-extra": "^11.0.4",
-    "@types/node": "^24.3.0",
-    "@types/svg2ttf": "^5.0.3",
-    "@types/svgicons2svgfont": "^14.0.0",
-    "@types/ttf2eot": "^2.0.2",
-    "@types/ttf2woff": "^2.0.4",
-    "@typescript-eslint/eslint-plugin": "^8.41.0",
-    "@typescript-eslint/parser": "^8.41.0",
-    "bun-types": "^1.2.21",
-    "chalk": "^5.6.0",
-    "eslint": "^9.34.0",
-    "fs-extra": "^11.3.1",
-    "glob": "^11.0.3",
-    "globals": "^16.3.0",
-    "rimraf": "^6.0.1",
-    "svg2ttf": "^6.0.3",
-    "svgicons2svgfont": "^15.0.1",
-    "ttf2eot": "^3.1.0",
-    "ttf2woff": "^3.0.0",
-    "ttf2woff2": "^8.0.0",
-    "typescript": "^5.9.2",
-    "typescript-eslint": "^8.41.0"
+  "scripts": {
+    "init": "bash scripts/install.sh",
+    "build": "python3 scripts/build.py",
+    "serve": "bun scripts/serve.ts",
+    "clean": "rimraf dist build temp",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.mjs",
+    "sync-magic": "curl https://api.scryfall.com/symbology -o ./data/magic/symbology.json",
+    "fetch-magic": "mkdir -p ./icons/magic/scryfall && cat ./data/magic/symbology.json | jq -r '.data[].svg_uri' | while read url; do filename=$(basename \"$url\"); curl -s \"$url\" -o \"./icons/magic/scryfall/$filename\"; echo \"Downloaded $filename\"; done"
   }
 }

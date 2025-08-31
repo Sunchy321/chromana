@@ -1,0 +1,952 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+import json
+import toml
+import shutil
+import subprocess
+import glob
+from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
+
+# 项目根目录
+PROJECT_ROOT = Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ICONS_DIR = PROJECT_ROOT / "icons"
+DIST_DIR = PROJECT_ROOT / "dist"
+TEMP_DIR = PROJECT_ROOT / "temp"
+BUILD_DIR = PROJECT_ROOT / "build"
+
+# 确保输出目录存在
+DIST_DIR.mkdir(exist_ok=True)
+TEMP_DIR.mkdir(exist_ok=True)
+
+# 检查nanoemoji是否安装
+def check_dependencies():
+    try:
+        subprocess.run(["nanoemoji", "--help"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except FileNotFoundError:
+        print("nanoemoji not found. Installing...")
+        subprocess.run([sys.executable, "-m", "pip", "install", "nanoemoji"], check=True)
+
+    # 检查字体转换工具
+    try:
+        import fontTools
+        print(f"fontTools {fontTools.__version__} found.")
+    except ImportError:
+        print("fonttools not found. Installing...")
+        subprocess.run([sys.executable, "-m", "pip", "install", "fonttools"], check=True)
+
+    # 检查是否支持WOFF2
+    try:
+        import brotli
+        print("brotli found, WOFF2 conversion will be available.")
+    except ImportError:
+        print("brotli not found. WOFF2 conversion may not be available.")
+        print("To enable WOFF2 support, install brotli: pip install brotli")
+
+# 读取配置文件
+def read_config(config_path):
+    with open(config_path, "r") as f:
+        return toml.load(f)
+
+# 准备nanoemoji参数
+def prepare_nanoemoji_params(font_name, svg_files, output_path, ligatures):
+    # 基本信息
+    output_file = str(output_path / f"{font_name}.ttf")
+
+    # 收集有效的SVG文件和对应的ligature
+    valid_svgs = []
+    valid_ligatures = []
+    valid_names = []
+
+    for symbol in ligatures:
+        name = symbol["name"]
+        path = symbol["path"]
+        ligature = symbol["ligature"]
+
+        # 确保SVG文件存在
+        if name in svg_files and os.path.exists(svg_files[name]):
+            valid_svgs.append(svg_files[name])
+            valid_ligatures.append(ligature)
+            valid_names.append(name)
+        else:
+            print(f"Warning: SVG file for symbol {name} not found, skipping")
+
+    return {
+        "font_name": font_name,
+        "output_file": output_file,
+        "svgs": valid_svgs,
+        "ligatures": valid_ligatures,
+        "names": valid_names
+    }
+
+# 使用nanoemoji生成基本字体
+def build_base_font(params_dict):
+    font_name = params_dict["font_name"]
+    output_file = params_dict["output_file"]
+    svgs = params_dict["svgs"]
+    ligatures = params_dict["ligatures"]
+    names = params_dict["names"]
+
+    if not svgs:
+        print(f"Error: No valid SVG files found for {font_name}")
+        return None, None
+
+    print(f"Building font {font_name} with {len(svgs)} icons")
+
+    # 创建临时目录，用于存放重命名的SVG文件
+    temp_svg_dir = TEMP_DIR / "svgs"
+    temp_svg_dir.mkdir(exist_ok=True)
+
+    # 用于存放临时SVG文件路径
+    temp_svgs = []
+    # 用于存储码点与字形名称的映射
+    glyph_mappings = {}
+
+    # 为每个SVG创建一个临时副本，文件名格式符合nanoemoji的要求
+    for i, (svg, ligature, name) in enumerate(zip(svgs, ligatures, names)):
+        # 使用私有区域码点 (Private Use Area)
+        codepoint = 0xE000 + i
+        hex_codepoint = f"{codepoint:04x}"
+
+        # 创建符合nanoemoji预期的文件名格式: emoji_uXXXX.svg
+        temp_filename = f"emoji_u{hex_codepoint}.svg"
+        temp_svg_path = temp_svg_dir / temp_filename
+
+        # 预处理SVG文件并复制到临时位置
+        preprocess_svg(svg, temp_svg_path)
+        temp_svgs.append(str(temp_svg_path))
+
+        # 创建有效的字形名称（只允许字母、数字和下划线）
+        # 确保名称是有效的标识符，符合OpenType字形命名规则
+        clean_name = ''.join(c for c in name if c.isalnum() or c == '_')
+        if not clean_name or not clean_name[0].isalpha():
+            clean_name = f"icon{i}" if not clean_name else f"i{clean_name}"
+
+        glyph_name = f"icon_{clean_name}"
+
+        # 确保字形名称不超过31个字符（OpenType规范的限制）
+        if len(glyph_name) > 31:
+            glyph_name = f"icon_{clean_name[:25]}_{i}"
+
+        # 存储码点与字形名称的映射
+        unicode_name = f"uni{int(hex_codepoint, 16):04X}"
+        glyph_mappings[hex_codepoint] = (unicode_name, ligature)
+
+    print(f"Created {len(temp_svgs)} temporary SVG files with Unicode codepoints")
+
+    # 创建一个临时的配置文件
+    build_dir = BUILD_DIR
+
+    # nanoemoji默认输出为build/Font.ttf，我们将记录这个路径
+    default_output = build_dir / "Font.ttf"
+
+    # 构建命令行 - 第一阶段：创建基本字体，不包含连字功能
+    cmd_basic = [
+        "nanoemoji",
+        "--family", font_name,
+        "--color_format", "glyf_colr_0",
+        "--output_file", str(default_output),
+        *temp_svgs
+    ]
+
+    # 执行命令创建基本字体
+    print(f"Step 1: Executing nanoemoji to create basic font:")
+    print(f"{' '.join(cmd_basic[:6])}... (and {len(temp_svgs)} SVG files)")
+
+    try:
+        subprocess.run(cmd_basic, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error running nanoemoji for basic font: {e}")
+        try:
+            result = subprocess.run(cmd_basic, capture_output=True, text=True)
+            print(f"Standard output: {result.stdout[:500]}..." if len(result.stdout) > 500 else result.stdout)
+            print(f"Standard error: {result.stderr[:500]}..." if len(result.stderr) > 500 else result.stderr)
+        except Exception as e2:
+            print(f"Error capturing output: {e2}")
+        return None, None
+
+    # 检查基本字体是否创建成功
+    if not os.path.exists(default_output):
+        print(f"Error: Basic font file not created at expected location: {default_output}")
+        return None, None
+
+    print(f"Successfully created basic font: {default_output}")
+
+    return default_output, glyph_mappings
+
+# 为字体添加连字功能
+def add_ligatures_to_font(font_file, output_file, glyph_mappings):
+    print(f"Adding ligatures to font: {font_file}")
+
+    # 步骤1：创建FEA文件以支持连字功能
+    fea_file = TEMP_DIR / f"{os.path.basename(output_file)}.fea"
+    fea_content = [
+        "languagesystem DFLT dflt;",
+        "languagesystem latn dflt;",
+        "",
+        "feature liga {  # Standard Ligatures"
+    ]
+
+    # 创建字符到标准名称的映射字典
+    char_name_map = {
+        # 基本字母保持原样
+        # 'a'-'z' 和 'A'-'Z' 不需要映射，直接使用
+
+        # 数字映射到命名
+        '0': "zero",
+        '1': "one",
+        '2': "two",
+        '3': "three",
+        '4': "four",
+        '5': "five",
+        '6': "six",
+        '7': "seven",
+        '8': "eight",
+        '9': "nine",
+
+        # 标点符号
+        '.': "period",
+        ',': "comma",
+        ':': "colon",
+        ';': "semicolon",
+        '!': "exclam",
+        '?': "question",
+
+        # 引号和撇号
+        "'": "quotesingle",
+        '"': "quotedbl",
+        '`': "grave",
+
+        # 括号和大括号
+        '(': "parenleft",
+        ')': "parenright",
+        '[': "bracketleft",
+        ']': "bracketright",
+        '{': "braceleft",
+        '}': "braceright",
+        '<': "less",
+        '>': "greater",
+
+        # 其他常用符号
+        '#': "numbersign",
+        '$': "dollar",
+        '%': "percent",
+        '&': "ampersand",
+        '*': "asterisk",
+        '+': "plus",
+        '-': "hyphen",
+        '/': "slash",
+        '\\': "backslash",
+        '=': "equal",
+        '@': "at",
+        '^': "asciicircum",
+        '_': "underscore",
+        '|': "bar",
+        '~': "asciitilde",
+        ' ': "space",
+
+        '½': "onehalf",
+        '∞': "uni221E",
+    }
+
+    # 为小写字母和大写字母添加映射（这些通常可以直接使用，但为了统一我们也添加映射）
+    for c in range(ord('a'), ord('z') + 1):
+        char_name_map[chr(c)] = chr(c)
+    for c in range(ord('A'), ord('Z') + 1):
+        char_name_map[chr(c)] = chr(c)
+
+    # 为每个连字添加替换规则
+    added_rules = 0
+    skipped_rules = 0
+
+    for hex_codepoint, (glyph_name, ligature) in glyph_mappings.items():
+        if not ligature or len(ligature) < 1:
+            print(f"Skipping empty ligature for {glyph_name}")
+            skipped_rules += 1
+            continue
+
+        try:
+            # 将每个字符转换为FEA中的正确表示
+            processed_chars = []
+
+            # 处理每个字符
+            for c in ligature:
+                # 检查字符是否在映射字典中
+                if c in char_name_map:
+                    processed_chars.append(char_name_map[c])
+                # 其他字符使用Unicode命名
+                else:
+                    char_code = ord(c)
+                    if char_code <= 0xFFFF:
+                        # BMP字符用4位十六进制表示
+                        processed_chars.append(f"uni{char_code:04X}")
+                    else:
+                        # 非BMP字符用5-6位十六进制表示
+                        processed_chars.append(f"u{char_code:06X}")
+
+            # 检查是否有成功处理的字符
+            if not processed_chars:
+                print(f"Warning: No valid characters in ligature for {glyph_name}")
+                skipped_rules += 1
+                continue
+
+            # 创建FEA规则字符串，字符之间用空格分隔
+            liga_string = " ".join(processed_chars)
+            # 使用Unicode码点作为目标字形名称
+            unicode_name = f"uni{int(hex_codepoint, 16):04X}"
+            # 添加连字替换规则
+            fea_content.append(f"  sub {liga_string} by {unicode_name};")
+            added_rules += 1
+
+        except Exception as e:
+            print(f"Error processing ligature for {glyph_name}: {e}")
+            skipped_rules += 1
+
+    print(f"Added {added_rules} ligature rules, skipped {skipped_rules} rules")
+
+    fea_content.extend(["} liga;", ""])
+
+    # 写入FEA文件
+    with open(fea_file, "w") as f:
+        f.write("\n".join(fea_content))
+
+    print(f"Created feature file: {fea_file}")
+
+    # 步骤2：使用FontTools添加连字功能
+    try:
+        from fontTools.ttLib import TTFont
+        from fontTools.feaLib.builder import addOpenTypeFeatures
+        import re
+
+        # 读取基本字体
+        print(f"Step 2: Adding ligature features to the font")
+        font = TTFont(font_file)
+
+        # 获取字体中所有可用的字形名称
+        available_glyphs = set(font.getGlyphOrder())
+        print(f"Font contains {len(available_glyphs)} glyphs")
+
+        # 使用TTX临时导出字体，用于后面添加缺失字形
+        ttx_temp_file = str(TEMP_DIR / "temp_font.ttx")
+        print(f"Exporting font to TTX format: {ttx_temp_file}")
+        font.saveXML(ttx_temp_file)
+
+        # 检查并修复FEA文件，找出所有需要添加的缺失字形
+        with open(fea_file, "r") as f:
+            fea_content = f.read()
+
+        # 使用正则表达式找出所有引用的字形名称
+        pattern = r'sub (.*?) by ([^;]+);'
+        matches = re.findall(pattern, fea_content)
+
+        # 收集所有需要添加的字形
+        missing_glyphs = set()
+
+        INPUT_GLYPHS = {
+            "braceleft": 0x007B, "braceright": 0x007D, "slash": 0x002F,
+            "onehalf": 0x00BD, "uni221E": 0x221E,
+            "zero": 0x30, "one": 0x31, "two": 0x32, "three": 0x33, "four": 0x34,
+            "five": 0x35, "six": 0x36, "seven": 0x37, "eight": 0x38, "nine": 0x39,
+            # Letters A–Z
+            **{ chr(cp): cp for cp in range(0x41, 0x5B) }
+        }
+
+        # Prepare input glyphs
+        for gname, cp in INPUT_GLYPHS.items():
+            def add_empty_input_glyph(font: TTFont, name: str, advance=0):
+                if name in font["glyf"].glyphs: return
+                from fontTools.ttLib.tables._g_l_y_f import Glyph
+                g = Glyph(); g.numberOfContours = 0
+                g.xMin = g.yMin = g.xMax = g.yMax = 0
+                font["glyf"].glyphs[name] = g
+                font["hmtx"].metrics[name] = (advance, 0)
+                order = font.getGlyphOrder(); order.append(name); font.setGlyphOrder(order)
+
+            add_empty_input_glyph(font, gname, advance=0)
+
+        def add_mapping_to_unicode_cmaps(font: TTFont, mapping: dict[int,str]):
+            cmap = font["cmap"]
+            for st in cmap.tables:
+                if st.platformID == 0 or (st.platformID == 3 and st.platEncID in (1,10)):
+                    for cp, g in mapping.items():
+                        if cp not in st.cmap:
+                            st.cmap[cp] = g
+
+        add_mapping_to_unicode_cmaps(font, {cp: name for name, cp in INPUT_GLYPHS.items()})
+
+        # 所有字形都应该已经存在，直接使用原始FEA文件
+        print(f"Total rules found in original FEA file: {len(matches)}")
+
+        # 添加OpenType特性，使用原始FEA文件
+        print(f"Adding OpenType features from {fea_file}")
+        addOpenTypeFeatures(font, str(fea_file), tables=["GSUB"])
+
+        # 保存带有连字功能的字体
+        font_path = Path(font_file)
+        enhanced_output = font_path.with_name(f"{os.path.basename(output_file)}")
+        font.save(enhanced_output)
+        print(f"Saved enhanced font with ligatures to: {enhanced_output}")
+
+        # 确保输出目录存在
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+
+        # 复制到指定输出位置
+        shutil.copy2(enhanced_output, output_file)
+        print(f"Copied font to final location: {output_file}")
+
+        return True
+    except Exception as e:
+        print(f"Error adding ligature features: {e}")
+        return False
+
+def convert_fonts(ttf_path):
+    from fontTools.ttLib import TTFont
+
+    base_path = Path(ttf_path).with_suffix("")
+    woff_path = f"{base_path}.woff"
+    woff2_path = f"{base_path}.woff2"
+
+    print(f"Converting {ttf_path} to WOFF and WOFF2 formats...")
+
+    # 加载TTF字体
+    try:
+        font = TTFont(ttf_path)
+
+        # 保存为WOFF
+        print(f"Saving WOFF format to {woff_path}")
+        font.flavor = "woff"
+        font.save(woff_path)
+
+        # 尝试保存为WOFF2
+        try:
+            print(f"Saving WOFF2 format to {woff2_path}")
+            font.flavor = "woff2"
+            font.save(woff2_path)
+            has_woff2 = True
+        except Exception as e:
+            print(f"Error saving to WOFF2 format: {e}")
+            print("This may happen if the woff2 Python module is not installed.")
+            print("You can install it with: pip install brotli")
+            has_woff2 = False
+
+    except Exception as e:
+        print(f"Error converting font: {e}")
+        return {"ttf": ttf_path, "woff": None, "woff2": None}
+
+    return {
+        "ttf": ttf_path,
+        "woff": woff_path,
+        "woff2": woff2_path if has_woff2 else None
+    }
+
+# 生成CSS
+def generate_css(font_name, font_files, font_code):
+    css = f"""/* {font_name} Icon Font */
+@font-face {{
+  font-family: '{font_name}';
+  src: url('./{os.path.basename(font_files["woff2"])}') format('woff2'),
+       url('./{os.path.basename(font_files["woff"])}') format('woff'),
+       url('./{os.path.basename(font_files["ttf"])}') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}}
+
+.{font_code}-icon {{
+  font-family: '{font_name}';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;  /* 默认图标大小 */
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+
+  /* Support for all WebKit browsers. */
+  -webkit-font-smoothing: antialiased;
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility;
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale;
+  /* Support for IE. */
+  font-feature-settings: 'liga';
+}}
+"""
+    css_path = DIST_DIR / f"{font_code}.css"
+    with open(css_path, "w") as f:
+        f.write(css)
+
+    return css_path
+
+# 生成示例HTML
+def generate_html(font_name, font_code, symbols, css_path):
+    symbols_html = ""
+    for symbol in symbols:
+        name = symbol["name"]
+        ligature = symbol["ligature"]
+        symbols_html += f"""
+    <div class="icon-item">
+      <i class="{font_code}-icon">{ligature}</i>
+      <div class="icon-name">{name}</div>
+      <div class="icon-code">{ligature}</div>
+    </div>"""
+
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{font_name} Icon Demo</title>
+  <link rel="stylesheet" href="./{os.path.basename(css_path)}">
+  <style>
+    body {{
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }}
+    h1 {{
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+    }}
+    .icons-grid {{
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }}
+    .icon-item {{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      padding: 16px 8px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: all 0.3s ease;
+    }}
+    .icon-item:hover {{
+      transform: translateY(-3px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }}
+    .{font_code}-icon {{
+      font-size: 32px;
+      margin-bottom: 8px;
+      color: #333;
+    }}
+    .icon-name {{
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 4px;
+      word-break: break-word;
+    }}
+    .icon-code {{
+      font-size: 10px;
+      color: #999;
+      font-family: monospace;
+      background-color: #f0f0f0;
+      padding: 2px 4px;
+      border-radius: 3px;
+      word-break: break-all;
+    }}
+  </style>
+</head>
+<body>
+  <h1>{font_name} Icons</h1>
+  <div class="icons-grid">{symbols_html}
+  </div>
+</body>
+</html>
+"""
+    html_path = DIST_DIR / f"{font_code}.html"
+    with open(html_path, "w") as f:
+        f.write(html)
+
+    return html_path
+
+# 预处理SVG文件，修复ID重复等问题
+def preprocess_svg(svg_path, temp_svg_path):
+    """
+    预处理SVG文件，修复一些常见问题：
+    1. 重复的元素ID
+    2. 不兼容的元素
+    """
+    import re
+    from xml.dom import minidom
+
+    try:
+        # 使用minidom解析SVG文件
+        dom = minidom.parse(svg_path)
+
+        # 获取所有带有id属性的元素
+        elements_with_ids = {}
+        # 遍历所有可能有id属性的元素类型
+        for elem_type in ['path', 'g', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon']:
+            for elem in dom.getElementsByTagName(elem_type):
+                if elem.hasAttribute('id'):
+                    elem_id = elem.getAttribute('id')
+                    if elem_id not in elements_with_ids:
+                        elements_with_ids[elem_id] = []
+                    elements_with_ids[elem_id].append(elem)
+
+        # 修复重复ID问题
+        for elem_id, elems in elements_with_ids.items():
+            if len(elems) > 1:
+                for i, elem in enumerate(elems[1:], 1):
+                    new_id = f"{elem_id}_{i}"
+                    elem.setAttribute('id', new_id)
+                    print(f"  Renamed element id=\"{elem_id}\" to id=\"{new_id}\"")
+
+        # 写入修改后的SVG
+        with open(temp_svg_path, 'w', encoding='utf-8') as f:
+            # 使用xml.dom.minidom生成的字符串包含XML声明，我们需要手动添加SVG DOCTYPE
+            svg_content = dom.toxml()
+            # 如果需要添加DOCTYPE（可选）
+            svg_content = svg_content.replace('<?xml version="1.0" ?>',
+                                             '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">')
+            f.write(svg_content)
+
+        return True
+    except Exception as e:
+        print(f"Error preprocessing SVG {svg_path}: {e}")
+        # 如果出错，直接复制原文件
+        shutil.copy2(svg_path, temp_svg_path)
+        return False
+
+# 处理单个图标集
+def process_icon_set(icon_dir):
+    icon_dir_path = Path(icon_dir)
+    config_path = icon_dir_path / "config.toml"
+
+    if not config_path.exists():
+        print(f"No config.toml found in {icon_dir_path}, skipping...")
+        return None
+
+    print(f"Processing icon set: {icon_dir_path.name}")
+
+    # 读取配置
+    config = read_config(config_path)
+    font_name = f'Chromana-{config["code"]}'
+    font_code = config["code"]
+    version = config["version"]
+    symbols = config["symbols"]
+
+    print(f"Found {len(symbols)} symbols in {font_name}")
+
+    # 收集SVG文件
+    svg_files = {}
+    for symbol in symbols:
+        name = symbol["name"]
+        svg_path = icon_dir_path / symbol["path"]
+        if svg_path.exists():
+            svg_files[name] = str(svg_path)
+        else:
+            print(f"Warning: SVG file {svg_path} not found")
+
+    # 创建输出目录
+    font_dist_dir = DIST_DIR / font_code
+    font_dist_dir.mkdir(exist_ok=True)
+
+    # 准备nanoemoji参数
+    nanoemoji_params = prepare_nanoemoji_params(
+        f"{font_name}-{version}",
+        svg_files,
+        font_dist_dir,
+        symbols
+    )
+
+    # 生成TTF - 内联替代build_font_with_nanoemoji的调用
+    # 第一步：生成基本字体
+    font_file, glyph_mappings = build_base_font(nanoemoji_params)
+
+    success = False
+
+    if font_file is not None:
+        # 第二步：添加连字功能
+        success = add_ligatures_to_font(font_file, nanoemoji_params["output_file"], glyph_mappings)
+
+    # TTF路径
+    ttf_path = font_dist_dir / f"{font_name}-{version}.ttf"
+
+    # 转换为其他格式
+    if success and ttf_path.exists():
+        font_files = convert_fonts(str(ttf_path))
+
+        # 生成CSS
+        css_path = generate_css(font_name, font_files, font_code)
+
+        # 生成示例HTML
+        html_path = generate_html(font_name, font_code, symbols, css_path)
+
+        print(f"Generated font files for {font_name}:")
+        for fmt, path in font_files.items():
+            if path:
+                print(f"  - {fmt}: {path}")
+        print(f"  - CSS: {css_path}")
+        print(f"  - HTML demo: {html_path}")
+
+        return {
+            "name": font_name,
+            "code": font_code,
+            "version": version,
+            "files": font_files,
+            "css": css_path,
+            "html": html_path,
+            "symbols": symbols
+        }
+    else:
+        print(f"Error: Failed to generate TTF font for {font_name}")
+        return None
+
+# 合并所有字体
+def merge_fonts(font_results):
+    if not font_results:
+        print("No fonts to merge")
+        return
+
+    print("Merging all fonts...")
+
+    # 创建合并字体的配置
+    merged_font_name = "Chromana-All"
+    merged_font_code = "chromana"
+
+    all_symbols = []
+    glyph_index = 0
+
+    # 收集所有图标
+    for font in font_results:
+        for symbol in font["symbols"]:
+            # 复制SVG文件到临时目录
+            orig_svg_path = Path(ICONS_DIR) / font["code"] / symbol["path"]
+            temp_svg_path = TEMP_DIR / f"{font['code']}_{symbol['name']}.svg"
+            shutil.copy2(orig_svg_path, temp_svg_path)
+
+            # 添加到合并列表
+            all_symbols.append({
+                "name": f"{font['code']}_{symbol['name']}",
+                "path": str(temp_svg_path),
+                "ligature": symbol["ligature"],
+                "original_font": font["code"]
+            })
+            glyph_index += 1
+
+    # 准备合并字体的nanoemoji参数
+    svg_files = {}
+    merged_symbols = []
+
+    for idx, symbol in enumerate(all_symbols):
+        name = symbol["name"]
+        path = symbol["path"]
+        ligature = symbol["ligature"]
+
+        # 添加到符号列表
+        merged_symbols.append({
+            "name": name,
+            "path": path,
+            "ligature": ligature
+        })
+
+        # 收集SVG路径
+        svg_files[name] = path
+
+    # 准备nanoemoji参数
+    merged_params = prepare_nanoemoji_params(
+        merged_font_name,
+        svg_files,
+        DIST_DIR,
+        merged_symbols
+    )
+
+    # 生成合并字体
+    # 第一步：生成基本字体
+    font_file, glyph_mappings = build_base_font(merged_params)
+    success = False
+
+    if font_file is not None:
+        # 第二步：添加连字功能
+        success = add_ligatures_to_font(font_file, merged_params["output_file"], glyph_mappings)
+
+    # 转换为其他格式
+    ttf_path = DIST_DIR / f"{merged_font_code}.ttf"
+    if success and ttf_path.exists():
+        merged_font_files = convert_fonts(str(ttf_path))
+
+        # 创建分类的符号列表，按原始字体分组
+        grouped_symbols = {}
+        for symbol in all_symbols:
+            font_code = symbol["original_font"]
+            if font_code not in grouped_symbols:
+                grouped_symbols[font_code] = []
+            grouped_symbols[font_code].append(symbol)
+
+        # 生成CSS
+        merged_css_path = generate_css(merged_font_name, merged_font_files, merged_font_code)
+
+        # 生成示例HTML，按原始字体分组显示
+        merged_html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{merged_font_name} Icon Demo</title>
+  <link rel="stylesheet" href="./{os.path.basename(merged_css_path)}">
+  <style>
+    body {{
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }}
+    h1, h2 {{
+      color: #333;
+    }}
+    h1 {{
+      text-align: center;
+      margin-bottom: 20px;
+    }}
+    h2 {{
+      margin-top: 40px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+    }}
+    .icons-grid {{
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }}
+    .icon-item {{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      padding: 16px 8px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: all 0.3s ease;
+    }}
+    .icon-item:hover {{
+      transform: translateY(-3px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }}
+    .{merged_font_code}-icon {{
+      font-size: 32px;
+      margin-bottom: 8px;
+      color: #333;
+    }}
+    .icon-name {{
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 4px;
+      word-break: break-word;
+    }}
+    .icon-code {{
+      font-size: 10px;
+      color: #999;
+      font-family: monospace;
+      background-color: #f0f0f0;
+      padding: 2px 4px;
+      border-radius: 3px;
+      word-break: break-all;
+    }}
+    .font-section {{
+      margin-bottom: 40px;
+    }}
+  </style>
+</head>
+<body>
+  <h1>{merged_font_name} Icons</h1>
+"""
+
+        # 为每个原始字体添加一个部分
+        for font_code, symbols in grouped_symbols.items():
+            # 查找原始字体的名称
+            font_name = next((f["name"] for f in font_results if f["code"] == font_code), font_code)
+
+            merged_html += f"""
+  <div class="font-section">
+    <h2>{font_name}</h2>
+    <div class="icons-grid">
+"""
+
+            # 添加每个符号
+            for symbol in symbols:
+                name = symbol["name"].split('_', 1)[1]  # 移除前缀
+                ligature = symbol["ligature"]
+                merged_html += f"""
+      <div class="icon-item">
+        <i class="{merged_font_code}-icon">{ligature}</i>
+        <div class="icon-name">{name}</div>
+        <div class="icon-code">{ligature}</div>
+      </div>"""
+
+            merged_html += """
+    </div>
+  </div>
+"""
+
+        # 完成HTML
+        merged_html += """
+</body>
+</html>
+"""
+
+        merged_html_path = DIST_DIR / f"{merged_font_code}.html"
+        with open(merged_html_path, "w") as f:
+            f.write(merged_html)
+
+        print(f"Generated merged font {merged_font_name}:")
+        for fmt, path in merged_font_files.items():
+            if path:
+                print(f"  - {fmt}: {path}")
+        print(f"  - CSS: {merged_css_path}")
+        print(f"  - HTML demo: {merged_html_path}")
+
+def main():
+    # 检查依赖
+    check_dependencies()
+
+    # 查找图标目录
+    icon_dirs = [d for d in ICONS_DIR.iterdir() if d.is_dir() and (d / "config.toml").exists()]
+
+    if not icon_dirs:
+        print("No icon sets found with config.toml files")
+        return
+
+    print(f"Found {len(icon_dirs)} icon sets")
+
+    # 处理每个图标集
+    results = []
+    with ThreadPoolExecutor() as executor:
+        # 并行处理每个图标集
+        futures = [executor.submit(process_icon_set, icon_dir) for icon_dir in icon_dirs]
+        for future in futures:
+            result = future.result()
+            if result:
+                results.append(result)
+
+    # 生成合并字体
+    if len(results) > 1:
+        merge_fonts(results)
+
+    # 清理临时文件
+    print("Cleaning up temporary files...")
+    # shutil.rmtree(TEMP_DIR, ignore_errors=True)
+
+    print("Build complete!")
+
+if __name__ == "__main__":
+    main()
