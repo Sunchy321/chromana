@@ -464,6 +464,11 @@ def generate_css(font_name, font_files, font_code):
   font-style: normal;
 }}
 
+.{font_code}-output {{
+  font-family: 'Chromana-magic';
+  word-break: break-word;
+}}
+
 .{font_code}-icon {{
   font-family: '{font_name}';
   font-weight: normal;
@@ -619,139 +624,7 @@ def generate_html(font_name, font_code, symbols, css_path, categories=None):
   <title>{font_name} 符号展示</title>
   <link rel="stylesheet" href="./style.css">
   <link rel="stylesheet" href="./{os.path.basename(css_path)}">
-  <style>
-    body {{
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      margin: 0;
-      padding: 20px;
-      background-color: #f5f5f5;
-      color: #333;
-    }}
-
-    .container {{
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }}
-
-    h1, h2, h3 {{
-      text-align: center;
-      margin-bottom: 20px;
-    }}
-
-    .section {{
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      padding: 20px;
-      margin-bottom: 30px;
-    }}
-
-    /* 符号展示部分 */
-    .icons-grid {{
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 16px;
-    }}
-
-    .icon-item {{
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: #f9f9f9;
-      padding: 16px 8px;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      text-align: center;
-      transition: all 0.2s ease;
-    }}
-
-    .icon-item:hover {{
-      transform: translateY(-2px);
-      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-    }}
-
-    .icon-display {{
-      font-size: 32px;
-      margin-bottom: 8px;
-    }}
-
-    .icon-name {{
-      font-size: 12px;
-      color: #555;
-      margin-bottom: 4px;
-      word-break: break-word;
-    }}
-
-    .icon-code {{
-      font-size: 10px;
-      color: #888;
-      font-family: monospace;
-      background-color: #f0f0f0;
-      padding: 2px 4px;
-      border-radius: 3px;
-      word-break: break-all;
-    }}
-
-    /* 连字测试部分 */
-    .ligature-test {{
-      margin-top: 20px;
-    }}
-
-    .test-controls {{
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }}
-
-    .test-input {{
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 16px;
-    }}
-
-    .font-size-control {{
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }}
-
-    .test-button {{
-      padding: 10px 15px;
-      background: #4a90e2;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }}
-
-    .test-output {{
-      min-height: 100px;
-      padding: 20px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 24px;
-      margin-bottom: 10px;
-    }}
-
-    .symbol-category {{
-      margin-bottom: 30px;
-    }}
-
-    .category-title {{
-      border-bottom: 1px solid #eee;
-      padding-bottom: 10px;
-      margin-top: 20px;
-    }}
-
-    /* 宽字符样式，占用两格位置 */
-    .wide-icon {{
-      grid-column: span 2;
-    }}
-  </style>
+  <script src="./action.js"></script>
 </head>
 <body>
   <div class="container">
@@ -779,35 +652,6 @@ def generate_html(font_name, font_code, symbols, css_path, categories=None):
       {category_sections}
     </section>
   </div>
-
-  <script>
-    // 处理连字测试
-    document.addEventListener('DOMContentLoaded', function() {{
-      const testInput = document.getElementById('testInput');
-      const testOutput = document.getElementById('testOutput');
-      const clearButton = document.getElementById('clearButton');
-      const fontSizeSlider = document.getElementById('fontSize');
-      const fontSizeDisplay = document.getElementById('fontSizeDisplay');
-
-      // 输入框事件处理
-      testInput.addEventListener('input', function() {{
-        testOutput.textContent = this.value;
-      }});
-
-      // 清空按钮
-      clearButton.addEventListener('click', function() {{
-        testInput.value = '';
-        testOutput.textContent = '';
-      }});
-
-      // 字体大小调整
-      fontSizeSlider.addEventListener('input', function() {{
-        const size = this.value + 'px';
-        testOutput.style.fontSize = size;
-        fontSizeDisplay.textContent = size;
-      }});
-    }});
-  </script>
 </body>
 </html>
 """

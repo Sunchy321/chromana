@@ -8,6 +8,11 @@
   font-style: normal;
 }
 
+.magic-output {
+  font-family: 'Chromana-magic';
+  word-break: break-word;
+}
+
 .magic-icon {
   font-family: 'Chromana-magic';
   font-weight: normal;
