@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chromana"
+version = "0.1.0"
+description = "A font representing TCG symbols with ligature support"
+readme = "README.md"
+authors = [
+    {name = "Sunchy321", email = "sunchy321@qq.com"}
+]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Text Processing :: Fonts",
+]
+keywords = ["font", "icon", "svg", "ligature", "tcg"]
+requires-python = ">=3.8"
+dependencies = [
+    "fonttools",
+    "nanoemoji",
+    "toml",
+    "brotli",
+]
+
+[project.urls]
+Homepage = "https://github.com/Sunchy321/chromana"
+Issues = "https://github.com/Sunchy321/chromana/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "black",
+    "isort",
+]
+
+[tool.setuptools]
+packages = ["chromana"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = ["tests"]
+
+[tool.black]
+line-length = 88
+target-version = ["py38", "py39", "py310"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.pyright]
+include = ["scripts"]
+exclude = ["**/__pycache__"]
+typeCheckingMode = "basic"
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = "E203"

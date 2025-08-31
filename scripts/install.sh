@@ -21,7 +21,7 @@ source "$VENV_DIR/bin/activate"
 # 安装必要的依赖
 echo "正在安装必要的Python依赖..."
 pip install --upgrade pip
-pip install fonttools nanoemoji toml brotli
+pip install -e .
 
 echo "依赖安装完成！"
 echo "虚拟环境已创建在 $VENV_DIR"
