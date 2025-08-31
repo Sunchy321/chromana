@@ -1,6 +1,6 @@
 name = "Magic: The Gathering"
 code = "magic"
-version = "0.2.0"
+version = "0.3.0"
 
 [[categories]]
 name = "normal-mana"
@@ -283,6 +283,66 @@ path="scryfall/GU.svg"
 ligature="{G/U}"
 category="hybrid-mana"
 
+[[symbols]]
+name="two-or-white"
+path="scryfall/2W.svg"
+ligature="{2/W}"
+category="hybrid-mana"
+
+[[symbols]]
+name="two-or-blue"
+path="scryfall/2U.svg"
+ligature="{2/U}"
+category="hybrid-mana"
+
+[[symbols]]
+name="two-or-black"
+path="scryfall/2B.svg"
+ligature="{2/B}"
+category="hybrid-mana"
+
+[[symbols]]
+name="two-or-red"
+path="scryfall/2R.svg"
+ligature="{2/R}"
+category="hybrid-mana"
+
+[[symbols]]
+name="two-or-green"
+path="scryfall/2G.svg"
+ligature="{2/G}"
+category="hybrid-mana"
+
+[[symbols]]
+name="colorless-or-white"
+path="scryfall/CW.svg"
+ligature="{C/W}"
+category="hybrid-mana"
+
+[[symbols]]
+name="colorless-or-blue"
+path="scryfall/CU.svg"
+ligature="{C/U}"
+category="hybrid-mana"
+
+[[symbols]]
+name="colorless-or-black"
+path="scryfall/CB.svg"
+ligature="{C/B}"
+category="hybrid-mana"
+
+[[symbols]]
+name="colorless-or-red"
+path="scryfall/CR.svg"
+ligature="{C/R}"
+category="hybrid-mana"
+
+[[symbols]]
+name="colorless-or-green"
+path="scryfall/CG.svg"
+ligature="{C/G}"
+category="hybrid-mana"
+
 # 非瑞法术力
 [[symbols]]
 name="white-phyrexian"
@@ -312,6 +372,12 @@ category="phyrexian-mana"
 name="green-phyrexian"
 path="scryfall/GP.svg"
 ligature="{G/P}"
+category="phyrexian-mana"
+
+[[symbols]]
+name="colorless-phyrexian"
+path="scryfall/CP.svg"
+ligature="{C/P}"
 category="phyrexian-mana"
 
 [[symbols]]
@@ -399,7 +465,31 @@ path="scryfall/E.svg"
 ligature="{E}"
 category="other"
 
+[[symbols]]
+name="phyrexian"
+path="scryfall/H.svg"
+ligature="{H}"
+category="other"
+
+[[symbols]]
+name="ticket"
+path="scryfall/TK.svg"
+ligature="{TK}"
+category="other"
+
+[[symbols]]
+name="paw"
+path="scryfall/P.svg"
+ligature="{P}"
+category="other"
+
 # 特殊符号
+[[symbols]]
+name="acorn"
+path="scryfall/A.svg"
+ligature="{A}"
+category="special"
+
 [[symbols]]
 name="infinity"
 path="scryfall/INFINITY.svg"
@@ -413,6 +503,18 @@ ligature=["{½}", "{H1}"]
 category="special"
 
 [[symbols]]
+name="half-white"
+path="scryfall/HW.svg"
+ligature="{HW}"
+category="special"
+
+[[symbols]]
+name="half-red"
+path="scryfall/HR.svg"
+ligature="{HR}"
+category="special"
+
+[[symbols]]
 name="chaos"
 path="scryfall/CHAOS.svg"
 ligature="{CHAOS}"
@@ -422,4 +524,16 @@ category="special"
 name="planeswalker"
 path="scryfall/PW.svg"
 ligature="{PW}"
+category="special"
+
+[[symbols]]
+name="land-drop"
+path="scryfall/D.svg"
+ligature="{D}"
+category="special"
+
+[[symbols]]
+name="legendary-mana"
+path="scryfall/L.svg"
+ligature="{L}"
 category="special"
