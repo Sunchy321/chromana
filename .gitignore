@@ -3,7 +3,7 @@
 
 # 构建产物
 temp/
-# dist/ (注释掉，因为我们希望保留字体文件在仓库中)
+dist/
 
 # 日志
 npm-debug.log*

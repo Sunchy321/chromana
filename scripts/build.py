@@ -69,7 +69,11 @@ def prepare_nanoemoji_params(font_name, svg_files, output_path, ligatures):
         # 确保SVG文件存在
         if name in svg_files and os.path.exists(svg_files[name]):
             valid_svgs.append(svg_files[name])
-            valid_ligatures.append(ligature)
+            # 处理多个连字的情况
+            if isinstance(ligature, list):
+                valid_ligatures.append(ligature)
+            else:
+                valid_ligatures.append([ligature])
             valid_names.append(name)
         else:
             print(f"Warning: SVG file for symbol {name} not found, skipping")
@@ -106,7 +110,7 @@ def build_base_font(params_dict):
     glyph_mappings = {}
 
     # 为每个SVG创建一个临时副本，文件名格式符合nanoemoji的要求
-    for i, (svg, ligature, name) in enumerate(zip(svgs, ligatures, names)):
+    for i, (svg, ligature_list, name) in enumerate(zip(svgs, ligatures, names)):
         # 使用私有区域码点 (Private Use Area)
         codepoint = 0xE000 + i
         hex_codepoint = f"{codepoint:04x}"
@@ -133,7 +137,7 @@ def build_base_font(params_dict):
 
         # 存储码点与字形名称的映射
         unicode_name = f"uni{int(hex_codepoint, 16):04X}"
-        glyph_mappings[hex_codepoint] = (unicode_name, ligature)
+        glyph_mappings[hex_codepoint] = (unicode_name, ligature_list)
 
     print(f"Created {len(temp_svgs)} temporary SVG files with Unicode codepoints")
 
@@ -262,48 +266,53 @@ def add_ligatures_to_font(font_file, output_file, glyph_mappings):
     added_rules = 0
     skipped_rules = 0
 
-    for hex_codepoint, (glyph_name, ligature) in glyph_mappings.items():
-        if not ligature or len(ligature) < 1:
+    for hex_codepoint, (glyph_name, ligatures) in glyph_mappings.items():
+        if not ligatures or len(ligatures) < 1:
             print(f"Skipping empty ligature for {glyph_name}")
             skipped_rules += 1
             continue
 
-        try:
-            # 将每个字符转换为FEA中的正确表示
-            processed_chars = []
-
-            # 处理每个字符
-            for c in ligature:
-                # 检查字符是否在映射字典中
-                if c in char_name_map:
-                    processed_chars.append(char_name_map[c])
-                # 其他字符使用Unicode命名
-                else:
-                    char_code = ord(c)
-                    if char_code <= 0xFFFF:
-                        # BMP字符用4位十六进制表示
-                        processed_chars.append(f"uni{char_code:04X}")
-                    else:
-                        # 非BMP字符用5-6位十六进制表示
-                        processed_chars.append(f"u{char_code:06X}")
-
-            # 检查是否有成功处理的字符
-            if not processed_chars:
-                print(f"Warning: No valid characters in ligature for {glyph_name}")
-                skipped_rules += 1
+        # 处理每个连字
+        for ligature in ligatures:
+            if not ligature or len(ligature) < 1:
                 continue
 
-            # 创建FEA规则字符串，字符之间用空格分隔
-            liga_string = " ".join(processed_chars)
-            # 使用Unicode码点作为目标字形名称
-            unicode_name = f"uni{int(hex_codepoint, 16):04X}"
-            # 添加连字替换规则
-            fea_content.append(f"  sub {liga_string} by {unicode_name};")
-            added_rules += 1
+            try:
+                # 将每个字符转换为FEA中的正确表示
+                processed_chars = []
 
-        except Exception as e:
-            print(f"Error processing ligature for {glyph_name}: {e}")
-            skipped_rules += 1
+                # 处理每个字符
+                for c in ligature:
+                    # 检查字符是否在映射字典中
+                    if c in char_name_map:
+                        processed_chars.append(char_name_map[c])
+                    # 其他字符使用Unicode命名
+                    else:
+                        char_code = ord(c)
+                        if char_code <= 0xFFFF:
+                            # BMP字符用4位十六进制表示
+                            processed_chars.append(f"uni{char_code:04X}")
+                        else:
+                            # 非BMP字符用5-6位十六进制表示
+                            processed_chars.append(f"u{char_code:06X}")
+
+                # 检查是否有成功处理的字符
+                if not processed_chars:
+                    print(f"Warning: No valid characters in ligature for {glyph_name}")
+                    skipped_rules += 1
+                    continue
+
+                # 创建FEA规则字符串，字符之间用空格分隔
+                liga_string = " ".join(processed_chars)
+                # 使用Unicode码点作为目标字形名称
+                unicode_name = f"uni{int(hex_codepoint, 16):04X}"
+                # 添加连字替换规则
+                fea_content.append(f"  sub {liga_string} by {unicode_name};")
+                added_rules += 1
+
+            except Exception as e:
+                print(f"Error processing ligature for {glyph_name}: {e}")
+                skipped_rules += 1
 
     print(f"Added {added_rules} ligature rules, skipped {skipped_rules} rules")
 
@@ -489,11 +498,20 @@ def generate_html(font_name, font_code, symbols, css_path):
     for symbol in symbols:
         name = symbol["name"]
         ligature = symbol["ligature"]
+
+        # 处理多个连字的情况
+        if isinstance(ligature, list):
+            primary_ligature = ligature[0]  # 使用第一个连字作为主显示
+            all_ligatures = ", ".join(ligature)  # 所有连字用逗号分隔显示
+        else:
+            primary_ligature = ligature
+            all_ligatures = ligature
+
         symbols_html += f"""
     <div class="icon-item">
-      <i class="{font_code}-icon">{ligature}</i>
+      <i class="{font_code}-icon">{primary_ligature}</i>
       <div class="icon-name">{name}</div>
-      <div class="icon-code">{ligature}</div>
+      <div class="icon-code">{all_ligatures}</div>
     </div>"""
 
     html = f"""<!DOCTYPE html>

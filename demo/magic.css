@@ -1,8 +1,8 @@
 @font-face {
   font-family: 'Chromana-magic';
-  src: url('../dist/magic/Chromana-magic-0.1.0.woff2') format('woff2'),
-       url('../dist/magic/Chromana-magic-0.1.0.woff') format('woff'),
-       url('../dist/magic/Chromana-magic-0.1.0.ttf') format('truetype');
+  src: url('../dist/magic/Chromana-magic-0.2.0.woff2') format('woff2'),
+       url('../dist/magic/Chromana-magic-0.2.0.woff') format('woff'),
+       url('../dist/magic/Chromana-magic-0.2.0.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: block;

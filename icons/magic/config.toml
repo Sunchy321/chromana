@@ -1,7 +1,8 @@
 name = "Magic: The Gathering"
 code = "magic"
-version = "0.1.0"
+version = "0.2.0"
 
+# 基础法术力
 [[symbols]]
 name="white"
 path="scryfall/W.svg"
@@ -31,31 +32,6 @@ ligature="{G}"
 name="colorless"
 path="scryfall/C.svg"
 ligature="{C}"
-
-[[symbols]]
-name="tap"
-path="scryfall/T.svg"
-ligature="{T}"
-
-[[symbols]]
-name="untap"
-path="scryfall/Q.svg"
-ligature="{Q}"
-
-[[symbols]]
-name="energy"
-path="scryfall/E.svg"
-ligature="{E}"
-
-[[symbols]]
-name="chaos"
-path="scryfall/CHAOS.svg"
-ligature="{CHAOS}"
-
-[[symbols]]
-name="planeswalker"
-path="scryfall/PW.svg"
-ligature="{PW}"
 
 # 数字法术力
 [[symbols]]
@@ -173,6 +149,21 @@ name="1000000"
 path="scryfall/1000000.svg"
 ligature="{1000000}"
 
+[[symbols]]
+name="x"
+path="scryfall/X.svg"
+ligature="{X}"
+
+[[symbols]]
+name="y"
+path="scryfall/Y.svg"
+ligature="{Y}"
+
+[[symbols]]
+name="z"
+path="scryfall/Z.svg"
+ligature="{Z}"
+
 # 混色法术力
 [[symbols]]
 name="white-blue"
@@ -224,7 +215,7 @@ name="green-blue"
 path="scryfall/GU.svg"
 ligature="{G/U}"
 
-# 费雷西亚法术力
+# 非瑞法术力
 [[symbols]]
 name="white-phyrexian"
 path="scryfall/WP.svg"
@@ -250,28 +241,88 @@ name="green-phyrexian"
 path="scryfall/GP.svg"
 ligature="{G/P}"
 
+[[symbols]]
+name="white-blue"
+path="scryfall/WUP.svg"
+ligature="{W/U/P}"
+
+[[symbols]]
+name="white-black"
+path="scryfall/WBP.svg"
+ligature="{W/B/P}"
+
+[[symbols]]
+name="blue-black"
+path="scryfall/UBP.svg"
+ligature="{U/B/P}"
+
+[[symbols]]
+name="blue-red"
+path="scryfall/URP.svg"
+ligature="{U/R/P}"
+
+[[symbols]]
+name="black-red"
+path="scryfall/BRP.svg"
+ligature="{B/R/P}"
+
+[[symbols]]
+name="black-green"
+path="scryfall/BGP.svg"
+ligature="{B/G/P}"
+
+[[symbols]]
+name="red-green"
+path="scryfall/RGP.svg"
+ligature="{R/G/P}"
+
+[[symbols]]
+name="red-white"
+path="scryfall/RWP.svg"
+ligature="{R/W/P}"
+
+[[symbols]]
+name="green-white"
+path="scryfall/GWP.svg"
+ligature="{G/W/P}"
+
+[[symbols]]
+name="green-blue"
+path="scryfall/GUP.svg"
+ligature="{G/U/P}"
+
 # 特殊符号
-[[symbols]]
-name="x"
-path="scryfall/X.svg"
-ligature="{X}"
-
-[[symbols]]
-name="y"
-path="scryfall/Y.svg"
-ligature="{Y}"
-
-[[symbols]]
-name="z"
-path="scryfall/Z.svg"
-ligature="{Z}"
-
 [[symbols]]
 name="infinity"
 path="scryfall/INFINITY.svg"
-ligature="{∞}"
+ligature=["{∞}", "{INF}"]
 
 [[symbols]]
 name="half"
 path="scryfall/HALF.svg"
-ligature="{½}"
+ligature=["{½}", "{H1}"]
+
+[[symbols]]
+name="tap"
+path="scryfall/T.svg"
+ligature="{T}"
+
+[[symbols]]
+name="untap"
+path="scryfall/Q.svg"
+ligature="{Q}"
+
+[[symbols]]
+name="energy"
+path="scryfall/E.svg"
+ligature="{E}"
+
+[[symbols]]
+name="chaos"
+path="scryfall/CHAOS.svg"
+ligature="{CHAOS}"
+
+[[symbols]]
+name="planeswalker"
+path="scryfall/PW.svg"
+ligature="{PW}"
