@@ -2,327 +2,424 @@ name = "Magic: The Gathering"
 code = "magic"
 version = "0.2.0"
 
+[[categories]]
+name = "normal-mana"
+display_name = "基础法术力"
+
+[[categories]]
+name = "number-mana"
+display_name = "数字法术力"
+
+[[categories]]
+name = "hybrid-mana"
+display_name = "混血法术力"
+
+[[categories]]
+name = "phyrexian-mana"
+display_name = "非瑞法术力"
+
+[[categories]]
+name = "other"
+display_name = "其他符号"
+
+[[categories]]
+name = "special"
+display_name = "特殊符号"
+
+
 # 基础法术力
 [[symbols]]
 name="white"
 path="scryfall/W.svg"
 ligature="{W}"
+category="normal-mana"
 
 [[symbols]]
 name="blue"
 path="scryfall/U.svg"
 ligature="{U}"
+category="normal-mana"
 
 [[symbols]]
 name="black"
 path="scryfall/B.svg"
 ligature="{B}"
+category="normal-mana"
 
 [[symbols]]
 name="red"
 path="scryfall/R.svg"
 ligature="{R}"
+category="normal-mana"
 
 [[symbols]]
 name="green"
 path="scryfall/G.svg"
 ligature="{G}"
+category="normal-mana"
 
 [[symbols]]
 name="colorless"
 path="scryfall/C.svg"
 ligature="{C}"
+category="normal-mana"
 
 # 数字法术力
 [[symbols]]
 name="0"
 path="scryfall/0.svg"
 ligature="{0}"
+category="number-mana"
 
 [[symbols]]
 name="1"
 path="scryfall/1.svg"
 ligature="{1}"
+category="number-mana"
 
 [[symbols]]
 name="2"
 path="scryfall/2.svg"
 ligature="{2}"
+category="number-mana"
 
 [[symbols]]
 name="3"
 path="scryfall/3.svg"
 ligature="{3}"
+category="number-mana"
 
 [[symbols]]
 name="4"
 path="scryfall/4.svg"
 ligature="{4}"
+category="number-mana"
 
 [[symbols]]
 name="5"
 path="scryfall/5.svg"
 ligature="{5}"
+category="number-mana"
 
 [[symbols]]
 name="6"
 path="scryfall/6.svg"
 ligature="{6}"
+category="number-mana"
 
 [[symbols]]
 name="7"
 path="scryfall/7.svg"
 ligature="{7}"
+category="number-mana"
 
 [[symbols]]
 name="8"
 path="scryfall/8.svg"
 ligature="{8}"
+category="number-mana"
 
 [[symbols]]
 name="9"
 path="scryfall/9.svg"
 ligature="{9}"
+category="number-mana"
 
 [[symbols]]
 name="10"
 path="scryfall/10.svg"
 ligature="{10}"
+category="number-mana"
 
 [[symbols]]
 name="11"
 path="scryfall/11.svg"
 ligature="{11}"
+category="number-mana"
 
 [[symbols]]
 name="12"
 path="scryfall/12.svg"
 ligature="{12}"
+category="number-mana"
 
 [[symbols]]
 name="13"
 path="scryfall/13.svg"
 ligature="{13}"
+category="number-mana"
 
 [[symbols]]
 name="14"
 path="scryfall/14.svg"
 ligature="{14}"
+category="number-mana"
 
 [[symbols]]
 name="15"
 path="scryfall/15.svg"
 ligature="{15}"
+category="number-mana"
 
 [[symbols]]
 name="16"
 path="scryfall/16.svg"
 ligature="{16}"
+category="number-mana"
 
 [[symbols]]
 name="17"
 path="scryfall/17.svg"
 ligature="{17}"
+category="number-mana"
 
 [[symbols]]
 name="18"
 path="scryfall/18.svg"
 ligature="{18}"
+category="number-mana"
 
 [[symbols]]
 name="19"
 path="scryfall/19.svg"
 ligature="{19}"
+category="number-mana"
 
 [[symbols]]
 name="20"
 path="scryfall/20.svg"
 ligature="{20}"
+category="number-mana"
 
 [[symbols]]
 name="100"
 path="scryfall/100.svg"
 ligature="{100}"
+category="number-mana"
 
 [[symbols]]
 name="1000000"
 path="scryfall/1000000.svg"
 ligature="{1000000}"
+category="number-mana"
+overflow=true
 
 [[symbols]]
 name="x"
 path="scryfall/X.svg"
 ligature="{X}"
+category="number-mana"
 
 [[symbols]]
 name="y"
 path="scryfall/Y.svg"
 ligature="{Y}"
+category="number-mana"
 
 [[symbols]]
 name="z"
 path="scryfall/Z.svg"
 ligature="{Z}"
+category="number-mana"
 
 # 混色法术力
 [[symbols]]
 name="white-blue"
 path="scryfall/WU.svg"
 ligature="{W/U}"
+category="hybrid-mana"
 
 [[symbols]]
 name="white-black"
 path="scryfall/WB.svg"
 ligature="{W/B}"
+category="hybrid-mana"
 
 [[symbols]]
 name="blue-black"
 path="scryfall/UB.svg"
 ligature="{U/B}"
+category="hybrid-mana"
 
 [[symbols]]
 name="blue-red"
 path="scryfall/UR.svg"
 ligature="{U/R}"
+category="hybrid-mana"
 
 [[symbols]]
 name="black-red"
 path="scryfall/BR.svg"
 ligature="{B/R}"
+category="hybrid-mana"
 
 [[symbols]]
 name="black-green"
 path="scryfall/BG.svg"
 ligature="{B/G}"
+category="hybrid-mana"
 
 [[symbols]]
 name="red-green"
 path="scryfall/RG.svg"
 ligature="{R/G}"
+category="hybrid-mana"
 
 [[symbols]]
 name="red-white"
 path="scryfall/RW.svg"
 ligature="{R/W}"
+category="hybrid-mana"
 
 [[symbols]]
 name="green-white"
 path="scryfall/GW.svg"
 ligature="{G/W}"
+category="hybrid-mana"
 
 [[symbols]]
 name="green-blue"
 path="scryfall/GU.svg"
 ligature="{G/U}"
+category="hybrid-mana"
 
 # 非瑞法术力
 [[symbols]]
 name="white-phyrexian"
 path="scryfall/WP.svg"
 ligature="{W/P}"
+category="phyrexian-mana"
 
 [[symbols]]
 name="blue-phyrexian"
 path="scryfall/UP.svg"
 ligature="{U/P}"
+category="phyrexian-mana"
 
 [[symbols]]
 name="black-phyrexian"
 path="scryfall/BP.svg"
 ligature="{B/P}"
+category="phyrexian-mana"
 
 [[symbols]]
 name="red-phyrexian"
 path="scryfall/RP.svg"
 ligature="{R/P}"
+category="phyrexian-mana"
 
 [[symbols]]
 name="green-phyrexian"
 path="scryfall/GP.svg"
 ligature="{G/P}"
+category="phyrexian-mana"
 
 [[symbols]]
-name="white-blue"
+name="white-blue-phyrexian"
 path="scryfall/WUP.svg"
 ligature="{W/U/P}"
+category="phyrexian-mana"
 
 [[symbols]]
-name="white-black"
+name="white-black-phyrexian"
 path="scryfall/WBP.svg"
 ligature="{W/B/P}"
+category="phyrexian-mana"
 
 [[symbols]]
-name="blue-black"
+name="blue-black-phyrexian"
 path="scryfall/UBP.svg"
 ligature="{U/B/P}"
+category="phyrexian-mana"
 
 [[symbols]]
-name="blue-red"
+name="blue-red-phyrexian"
 path="scryfall/URP.svg"
 ligature="{U/R/P}"
+category="phyrexian-mana"
 
 [[symbols]]
-name="black-red"
+name="black-red-phyrexian"
 path="scryfall/BRP.svg"
 ligature="{B/R/P}"
+category="phyrexian-mana"
 
 [[symbols]]
-name="black-green"
+name="black-green-phyrexian"
 path="scryfall/BGP.svg"
 ligature="{B/G/P}"
+category="phyrexian-mana"
 
 [[symbols]]
-name="red-green"
+name="red-green-phyrexian"
 path="scryfall/RGP.svg"
 ligature="{R/G/P}"
+category="phyrexian-mana"
 
 [[symbols]]
-name="red-white"
+name="red-white-phyrexian"
 path="scryfall/RWP.svg"
 ligature="{R/W/P}"
+category="phyrexian-mana"
 
 [[symbols]]
-name="green-white"
+name="green-white-phyrexian"
 path="scryfall/GWP.svg"
 ligature="{G/W/P}"
+category="phyrexian-mana"
 
 [[symbols]]
-name="green-blue"
+name="green-blue-phyrexian"
 path="scryfall/GUP.svg"
 ligature="{G/U/P}"
+category="phyrexian-mana"
+
+# 其他符号
+[[symbols]]
+name="tap"
+path="scryfall/T.svg"
+ligature="{T}"
+category="other"
+
+[[symbols]]
+name="untap"
+path="scryfall/Q.svg"
+ligature="{Q}"
+category="other"
+
+[[symbols]]
+name="snow"
+path="scryfall/S.svg"
+ligature="{S}"
+category="other"
+
+[[symbols]]
+name="energy"
+path="scryfall/E.svg"
+ligature="{E}"
+category="other"
 
 # 特殊符号
 [[symbols]]
 name="infinity"
 path="scryfall/INFINITY.svg"
 ligature=["{∞}", "{INF}"]
+category="special"
 
 [[symbols]]
 name="half"
 path="scryfall/HALF.svg"
 ligature=["{½}", "{H1}"]
-
-[[symbols]]
-name="tap"
-path="scryfall/T.svg"
-ligature="{T}"
-
-[[symbols]]
-name="untap"
-path="scryfall/Q.svg"
-ligature="{Q}"
-
-[[symbols]]
-name="energy"
-path="scryfall/E.svg"
-ligature="{E}"
+category="special"
 
 [[symbols]]
 name="chaos"
 path="scryfall/CHAOS.svg"
 ligature="{CHAOS}"
+category="special"
 
 [[symbols]]
 name="planeswalker"
 path="scryfall/PW.svg"
 ligature="{PW}"
+category="special"

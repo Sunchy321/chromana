@@ -15,6 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 PROJECT_ROOT = Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ICONS_DIR = PROJECT_ROOT / "icons"
 DIST_DIR = PROJECT_ROOT / "dist"
+DEMO_DIR = PROJECT_ROOT / "demo"
 TEMP_DIR = PROJECT_ROOT / "temp"
 BUILD_DIR = PROJECT_ROOT / "build"
 
@@ -456,9 +457,9 @@ def generate_css(font_name, font_files, font_code):
     css = f"""/* {font_name} Icon Font */
 @font-face {{
   font-family: '{font_name}';
-  src: url('./{os.path.basename(font_files["woff2"])}') format('woff2'),
-       url('./{os.path.basename(font_files["woff"])}') format('woff'),
-       url('./{os.path.basename(font_files["ttf"])}') format('truetype');
+  src: url('../dist/{font_code}/{os.path.basename(font_files["woff2"])}') format('woff2'),
+       url('../dist/{font_code}/{os.path.basename(font_files["woff"])}') format('woff'),
+       url('../dist/{font_code}/{os.path.basename(font_files["ttf"])}') format('truetype');
   font-weight: normal;
   font-style: normal;
 }}
@@ -486,40 +487,137 @@ def generate_css(font_name, font_files, font_code):
   font-feature-settings: 'liga';
 }}
 """
-    css_path = DIST_DIR / f"{font_code}.css"
+    css_path = DEMO_DIR / f"{font_code}.css"
     with open(css_path, "w") as f:
         f.write(css)
 
     return css_path
 
 # 生成示例HTML
-def generate_html(font_name, font_code, symbols, css_path):
-    symbols_html = ""
+def generate_html(font_name, font_code, symbols, css_path, categories=None):
+    # 创建分类名称映射，用于显示友好的分类名称
+    category_display_names = {}
+    category_order = []  # 用于保持分类的顺序
+    if categories:
+        for category in categories:
+            category_name = category.get("name", "")
+            display_name = category.get("display_name", category_name.replace("-", " ").title())
+            if category_name:
+                category_display_names[category_name] = display_name
+                category_order.append(category_name)
+
+    # 分类符号，便于后续按类别展示
+    categorized_symbols = {}
     for symbol in symbols:
         name = symbol["name"]
         ligature = symbol["ligature"]
+        category = symbol.get("category", "default")
+        overflow = symbol.get("overflow", False)
 
-        # 处理多个连字的情况
-        if isinstance(ligature, list):
-            primary_ligature = ligature[0]  # 使用第一个连字作为主显示
-            all_ligatures = ", ".join(ligature)  # 所有连字用逗号分隔显示
-        else:
-            primary_ligature = ligature
-            all_ligatures = ligature
+        if category not in categorized_symbols:
+            categorized_symbols[category] = []
 
-        symbols_html += f"""
-    <div class="icon-item">
-      <i class="{font_code}-icon">{primary_ligature}</i>
-      <div class="icon-name">{name}</div>
-      <div class="icon-code">{all_ligatures}</div>
-    </div>"""
+        categorized_symbols[category].append({
+            "name": name,
+            "ligature": ligature,
+            "overflow": overflow
+        })
+
+    # 生成各类别的HTML
+    category_sections = ""
+
+    # 处理所有分类
+    all_categories = []
+
+    # 首先添加配置中指定顺序的分类
+    for category in category_order:
+        if category in categorized_symbols:
+            all_categories.append(category)
+
+    # 然后添加其他没有在配置中指定的分类
+    for category in categorized_symbols.keys():
+        if category not in all_categories:
+            all_categories.append(category)
+
+    # 根据分类顺序生成HTML
+    for category in all_categories:
+        category_symbols = categorized_symbols[category]
+        symbols_html = ""
+
+        for symbol in category_symbols:
+            name = symbol["name"]
+            ligature = symbol["ligature"]
+
+            # 处理多个连字的情况
+            if isinstance(ligature, list):
+                primary_ligature = ligature[0]  # 使用第一个连字作为主显示
+                all_ligatures = ", ".join(ligature)  # 所有连字用逗号分隔显示
+            else:
+                primary_ligature = ligature
+                all_ligatures = ligature
+
+            # 检查是否为宽字符（如1000000等）
+            wide_char_class = ""
+
+            if symbol["overflow"]:  # 根据名称或字符长度判断
+                wide_char_class = " wide-icon"
+
+            symbols_html += f"""
+        <div class="icon-item{wide_char_class}">
+          <i class="{font_code}-icon icon-display">{primary_ligature}</i>
+          <div class="icon-name">{name}</div>
+          <div class="icon-code">{all_ligatures}</div>
+        </div>"""        # 使用配置中的显示名称，或者格式化为标题格式
+        category_title = category_display_names.get(
+            category,
+            category.replace('_', ' ').replace('-', ' ').title()
+        )
+
+        category_sections += f"""
+      <div class="symbol-category">
+        <h3 class="category-title">{category_title}</h3>
+        <div class="icons-grid">
+          {symbols_html}
+        </div>
+      </div>"""
+
+    # 如果没有分类，则直接显示所有符号
+    if not categorized_symbols:
+        symbols_html = ""
+        for symbol in symbols:
+            name = symbol["name"]
+            ligature = symbol["ligature"]
+
+            # 处理多个连字的情况
+            if isinstance(ligature, list):
+                primary_ligature = ligature[0]  # 使用第一个连字作为主显示
+                all_ligatures = ", ".join(ligature)  # 所有连字用逗号分隔显示
+            else:
+                primary_ligature = ligature
+                all_ligatures = ligature
+
+            symbols_html += f"""
+        <div class="icon-item">
+          <i class="{font_code}-icon icon-display">{primary_ligature}</i>
+          <div class="icon-name">{name}</div>
+          <div class="icon-code">{all_ligatures}</div>
+        </div>"""
+
+        category_sections = f"""
+      <div class="symbol-category">
+        <h3 class="category-title">所有符号</h3>
+        <div class="icons-grid">
+          {symbols_html}
+        </div>
+      </div>"""
 
     html = f"""<!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{font_name} Icon Demo</title>
+  <title>{font_name} 符号展示</title>
+  <link rel="stylesheet" href="./style.css">
   <link rel="stylesheet" href="./{os.path.basename(css_path)}">
   <style>
     body {{
@@ -527,65 +625,193 @@ def generate_html(font_name, font_code, symbols, css_path):
       margin: 0;
       padding: 20px;
       background-color: #f5f5f5;
-    }}
-    h1 {{
-      text-align: center;
-      margin-bottom: 30px;
       color: #333;
     }}
+
+    .container {{
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }}
+
+    h1, h2, h3 {{
+      text-align: center;
+      margin-bottom: 20px;
+    }}
+
+    .section {{
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 30px;
+    }}
+
+    /* 符号展示部分 */
     .icons-grid {{
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
       gap: 16px;
-      max-width: 1200px;
-      margin: 0 auto;
     }}
+
     .icon-item {{
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: white;
+      background: #f9f9f9;
       padding: 16px 8px;
       border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       text-align: center;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
     }}
+
     .icon-item:hover {{
-      transform: translateY(-3px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
     }}
-    .{font_code}-icon {{
+
+    .icon-display {{
       font-size: 32px;
       margin-bottom: 8px;
-      color: #333;
     }}
+
     .icon-name {{
       font-size: 12px;
-      color: #666;
+      color: #555;
       margin-bottom: 4px;
       word-break: break-word;
     }}
+
     .icon-code {{
       font-size: 10px;
-      color: #999;
+      color: #888;
       font-family: monospace;
       background-color: #f0f0f0;
       padding: 2px 4px;
       border-radius: 3px;
       word-break: break-all;
     }}
+
+    /* 连字测试部分 */
+    .ligature-test {{
+      margin-top: 20px;
+    }}
+
+    .test-controls {{
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }}
+
+    .test-input {{
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }}
+
+    .font-size-control {{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }}
+
+    .test-button {{
+      padding: 10px 15px;
+      background: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }}
+
+    .test-output {{
+      min-height: 100px;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }}
+
+    .symbol-category {{
+      margin-bottom: 30px;
+    }}
+
+    .category-title {{
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+      margin-top: 20px;
+    }}
+
+    /* 宽字符样式，占用两格位置 */
+    .wide-icon {{
+      grid-column: span 2;
+    }}
   </style>
 </head>
 <body>
-  <h1>{font_name} Icons</h1>
-  <div class="icons-grid">{symbols_html}
+  <div class="container">
+    <h1>{font_name} 符号展示</h1>
+
+    <!-- 连字测试工具 -->
+    <section class="section ligature-test">
+      <h2>连字可用性测试</h2>
+      <div class="test-controls">
+        <input type="text" id="testInput" class="test-input" placeholder="输入连字代码以测试">
+        <div class="font-size-control">
+          <label for="fontSize">字体大小:</label>
+          <input type="range" id="fontSize" min="12" max="72" value="24">
+          <span id="fontSizeDisplay">24px</span>
+        </div>
+        <button id="clearButton" class="test-button">清空</button>
+      </div>
+      <div id="testOutput" class="test-output {font_code}-output"></div>
+      <p>提示: 输入符号代码来测试连字功能。</p>
+    </section>
+
+    <!-- 符号展示 -->
+    <section class="section">
+      <h2>符号展示</h2>
+      {category_sections}
+    </section>
   </div>
+
+  <script>
+    // 处理连字测试
+    document.addEventListener('DOMContentLoaded', function() {{
+      const testInput = document.getElementById('testInput');
+      const testOutput = document.getElementById('testOutput');
+      const clearButton = document.getElementById('clearButton');
+      const fontSizeSlider = document.getElementById('fontSize');
+      const fontSizeDisplay = document.getElementById('fontSizeDisplay');
+
+      // 输入框事件处理
+      testInput.addEventListener('input', function() {{
+        testOutput.textContent = this.value;
+      }});
+
+      // 清空按钮
+      clearButton.addEventListener('click', function() {{
+        testInput.value = '';
+        testOutput.textContent = '';
+      }});
+
+      // 字体大小调整
+      fontSizeSlider.addEventListener('input', function() {{
+        const size = this.value + 'px';
+        testOutput.style.fontSize = size;
+        fontSizeDisplay.textContent = size;
+      }});
+    }});
+  </script>
 </body>
 </html>
 """
-    html_path = DIST_DIR / f"{font_code}.html"
+    html_path = DEMO_DIR / f"{font_code}.html"
     with open(html_path, "w") as f:
         f.write(html)
 
@@ -657,6 +883,7 @@ def process_icon_set(icon_dir):
     font_code = config["code"]
     version = config["version"]
     symbols = config["symbols"]
+    categories = config.get("categories", [])
 
     print(f"Found {len(symbols)} symbols in {font_name}")
 
@@ -703,7 +930,7 @@ def process_icon_set(icon_dir):
         css_path = generate_css(font_name, font_files, font_code)
 
         # 生成示例HTML
-        html_path = generate_html(font_name, font_code, symbols, css_path)
+        html_path = generate_html(font_name, font_code, symbols, css_path, categories)
 
         print(f"Generated font files for {font_name}:")
         for fmt, path in font_files.items():
@@ -719,7 +946,8 @@ def process_icon_set(icon_dir):
             "files": font_files,
             "css": css_path,
             "html": html_path,
-            "symbols": symbols
+            "symbols": symbols,
+            "categories": categories
         }
     else:
         print(f"Error: Failed to generate TTF font for {font_name}")
@@ -883,6 +1111,11 @@ def merge_fonts(font_results):
     .font-section {{
       margin-bottom: 40px;
     }}
+
+    /* 宽字符样式，占用两格位置 */
+    .wide-icon {{
+      grid-column: span 2;
+    }}
   </style>
 </head>
 <body>
@@ -904,8 +1137,14 @@ def merge_fonts(font_results):
             for symbol in symbols:
                 name = symbol["name"].split('_', 1)[1]  # 移除前缀
                 ligature = symbol["ligature"]
+
+                # 检查是否为宽字符
+                wide_char_class = ""
+                if name == "1000000" or (isinstance(ligature, str) and len(ligature) > 5):
+                    wide_char_class = " wide-icon"
+
                 merged_html += f"""
-      <div class="icon-item">
+      <div class="icon-item{wide_char_class}">
         <i class="{merged_font_code}-icon">{ligature}</i>
         <div class="icon-name">{name}</div>
         <div class="icon-code">{ligature}</div>
@@ -962,7 +1201,7 @@ def main():
 
     # 清理临时文件
     print("Cleaning up temporary files...")
-    # shutil.rmtree(TEMP_DIR, ignore_errors=True)
+    shutil.rmtree(TEMP_DIR, ignore_errors=True)
 
     print("Build complete!")
 
