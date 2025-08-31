@@ -9,7 +9,7 @@ A font representing TCG (Trading Card Game) symbols with ligature support.
 - 为每个图标集生成独立的字体和演示页面
 - 可以合并多个图标集为一个统一的字体
 - 提供标准CSS类和简洁的使用方法
-- 使用Bun作为高性能JavaScript/TypeScript运行时
+- 纯Python实现，不依赖Node.js或其他运行时
 
 ## 目录结构
 
@@ -26,7 +26,8 @@ A font representing TCG (Trading Card Game) symbols with ligature support.
 │   ├── build.py        # 字体构建脚本
 │   ├── build.sh        # 构建脚本封装
 │   ├── install.sh      # 安装依赖
-│   └── serve.ts        # 开发服务器
+│   ├── clean.py        # 清理临时文件
+│   └── serve.py        # 开发服务器
 └── dist/               # 构建输出
     ├── chromana.ttf    # 合并字体
     ├── chromana.woff
@@ -81,8 +82,6 @@ ligature="{U}"
 
 ```bash
 # 安装Python依赖
-npm run establish
-# 或直接运行
 bash scripts/install.sh
 ```
 
@@ -95,8 +94,11 @@ bash scripts/install.sh
 ### 构建字体
 
 ```bash
+# 激活虚拟环境
+source .venv/bin/activate
+
 # 构建所有字体
-npm run build:fonts
+python scripts/build.py
 # 或
 python3 scripts/build.py
 
