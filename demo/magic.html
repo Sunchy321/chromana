@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>魔法符号字体测试</title>
+  <link rel="stylesheet" href="magic.css">
+</head>
+<body>
+  <div class="container">
+    <h1>魔法符号字体测试</h1>
+
+    <!-- 连字测试工具 -->
+    <section class="section ligature-test">
+      <h2>连字可用性测试</h2>
+      <div class="test-controls">
+        <input type="text" id="testInput" class="test-input" placeholder="输入连字代码，例如 {W}{U}{B}">
+        <div class="font-size-control">
+          <label for="fontSize">字体大小:</label>
+          <input type="range" id="fontSize" min="12" max="72" value="24">
+          <span id="fontSizeDisplay">24px</span>
+        </div>
+        <button id="clearButton" class="test-button">清空</button>
+      </div>
+      <div id="testOutput" class="test-output magic-output"></div>
+      <p>提示: 输入如 {W}{U}{B} 这样的组合来测试连字功能。</p>
+    </section>
+
+    <!-- 符号展示 -->
+    <section class="section">
+      <h2>所有符号</h2>
+
+      <!-- 基本法术力 -->
+      <div class="symbol-category">
+        <h3 class="category-title">基本法术力</h3>
+        <div class="icons-grid" id="basicMana">
+          <!-- 会通过JavaScript动态生成 -->
+        </div>
+      </div>
+
+      <!-- 数字法术力 -->
+      <div class="symbol-category">
+        <h3 class="category-title">数字法术力</h3>
+        <div class="icons-grid" id="numericMana">
+          <!-- 会通过JavaScript动态生成 -->
+        </div>
+      </div>
+
+      <!-- 混色法术力 -->
+      <div class="symbol-category">
+        <h3 class="category-title">混色法术力</h3>
+        <div class="icons-grid" id="hybridMana">
+          <!-- 会通过JavaScript动态生成 -->
+        </div>
+      </div>
+
+      <!-- 费雷西亚法术力 -->
+      <div class="symbol-category">
+        <h3 class="category-title">费雷西亚法术力</h3>
+        <div class="icons-grid" id="phyrexianMana">
+          <!-- 会通过JavaScript动态生成 -->
+        </div>
+      </div>
+
+      <!-- 特殊符号 -->
+      <div class="symbol-category">
+        <h3 class="category-title">特殊符号</h3>
+        <div class="icons-grid" id="specialSymbols">
+          <!-- 会通过JavaScript动态生成 -->
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="magic.js"></script>
+</body>
+</html>

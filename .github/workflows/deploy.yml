@@ -30,7 +30,7 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        run: bun install
+        run: bun run init
 
       - name: Build font and CSS
         run: bun run build
@@ -43,9 +43,9 @@ jobs:
           # Copy CNAME file for custom domain
           cp CNAME public/
           # Update reference paths in demo
-          sed -i 's|./dist/chromana.css|./chromana.css|g' public/index.html
+          sed -i 's|\.\./dist/|./|g' public/index.html
           # Update JSON path in JavaScript file
-          sed -i "s|'./dist/chromana-icons.json'|'./chromana-icons.json'|g" public/script.js
+          sed -i 's|\.\./dist/|./|g' public/script.js
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
