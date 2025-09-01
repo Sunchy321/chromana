@@ -228,6 +228,7 @@ name="100"
 file="100.svg"
 ligature="{100}"
 category="number-mana"
+style={ shadow = "shadow" }
 
 [[symbols]]
 name="1000000"
@@ -235,6 +236,7 @@ file="1000000.svg"
 ligature="{1000000}"
 category="number-mana"
 overflow=true
+style={ shadow = "shadow" }
 
 [[symbols]]
 name="x"
