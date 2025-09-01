@@ -583,12 +583,14 @@ name="half-white"
 file="HW.svg"
 ligature="{HW}"
 category="special"
+style={ shadow = "shadow" }
 
 [[symbols]]
 name="half-red"
 file="HR.svg"
 ligature="{HR}"
 category="special"
+style={ shadow = "shadow" }
 
 [[symbols]]
 name="chaos"

@@ -174,7 +174,7 @@ def build_nanoemoji_font(params: NanoEmojiParams) -> tuple[Optional[Path], Optio
         "--family", font_name,
         "--color_format", "glyf_colr_0",
         "--output_file", str(default_output),
-        "--width", "1000",
+        "--width", "0",
         "--ascender", "850",
         "--descender", "-150",
         "--noclip_to_viewbox",
