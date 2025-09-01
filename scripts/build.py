@@ -594,6 +594,11 @@ def generate_css(font_name, font_files, font_code):
   /* Support for IE. */
   font-feature-settings: 'liga';
 }}
+
+/* 阴影模式 */
+.shadow-mode {{
+  font-feature-settings: 'liga', 'ss01';
+}}
 """
     css_path = DEMO_DIR / f"{font_code}.css"
     with open(css_path, "w") as f:
@@ -743,10 +748,14 @@ def generate_html(font_name, font_code, symbols, css_path, categories=None):
           <input type="range" id="fontSize" min="12" max="72" value="24">
           <span id="fontSizeDisplay">24px</span>
         </div>
+        <div class="shadow-control">
+          <label for="shadowToggle">阴影模式:</label>
+          <input type="checkbox" id="shadowToggle">
+        </div>
         <button id="clearButton" class="test-button">清空</button>
       </div>
       <div id="testOutput" class="test-output {font_code}-output"></div>
-      <p>提示: 输入符号代码来测试连字功能。</p>
+      <p>提示: 输入符号代码来测试连字功能。启用"阴影模式"可以切换显示带阴影的符号。</p>
     </section>
 
     <!-- 符号展示 -->

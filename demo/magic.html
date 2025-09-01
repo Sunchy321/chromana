@@ -22,20 +22,24 @@
           <input type="range" id="fontSize" min="12" max="72" value="24">
           <span id="fontSizeDisplay">24px</span>
         </div>
+        <div class="shadow-control">
+          <label for="shadowToggle">阴影模式:</label>
+          <input type="checkbox" id="shadowToggle">
+        </div>
         <button id="clearButton" class="test-button">清空</button>
       </div>
       <div id="testOutput" class="test-output magic-output"></div>
-      <p>提示: 输入符号代码来测试连字功能。</p>
+      <p>提示: 输入符号代码来测试连字功能。启用"阴影模式"可以切换显示带阴影的符号（使用ss01字体特性）。</p>
     </section>
 
     <!-- 符号展示 -->
     <section class="section">
       <h2>符号展示</h2>
-      
+
       <div class="symbol-category">
         <h3 class="category-title">基础法术力</h3>
         <div class="icons-grid">
-          
+
         <div class="icon-item">
           <i class="magic-icon icon-display">{W}</i>
           <div class="icon-name">white</div>
@@ -71,7 +75,7 @@
       <div class="symbol-category">
         <h3 class="category-title">数字法术力</h3>
         <div class="icons-grid">
-          
+
         <div class="icon-item">
           <i class="magic-icon icon-display">{0}</i>
           <div class="icon-name">0</div>
@@ -207,7 +211,7 @@
       <div class="symbol-category">
         <h3 class="category-title">混血法术力</h3>
         <div class="icons-grid">
-          
+
         <div class="icon-item">
           <i class="magic-icon icon-display">{W/U}</i>
           <div class="icon-name">white-blue</div>
@@ -313,7 +317,7 @@
       <div class="symbol-category">
         <h3 class="category-title">非瑞法术力</h3>
         <div class="icons-grid">
-          
+
         <div class="icon-item">
           <i class="magic-icon icon-display">{W/P}</i>
           <div class="icon-name">white-phyrexian</div>
@@ -399,7 +403,7 @@
       <div class="symbol-category">
         <h3 class="category-title">其他符号</h3>
         <div class="icons-grid">
-          
+
         <div class="icon-item">
           <i class="magic-icon icon-display">{T}</i>
           <div class="icon-name">tap</div>
@@ -440,7 +444,7 @@
       <div class="symbol-category">
         <h3 class="category-title">特殊符号</h3>
         <div class="icons-grid">
-          
+
         <div class="icon-item">
           <i class="magic-icon icon-display">{A}</i>
           <div class="icon-name">acorn</div>

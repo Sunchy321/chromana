@@ -97,6 +97,45 @@ h1, h2, h3 {
     gap: 10px;
 }
 
+.shadow-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 开关样式 */
+.shadow-control input[type="checkbox"] {
+    position: relative;
+    width: 40px;
+    height: 20px;
+    appearance: none;
+    background-color: #ccc;
+    outline: none;
+    border-radius: 10px;
+    transition: .5s;
+    cursor: pointer;
+}
+
+.shadow-control input[type="checkbox"]:checked {
+    background-color: #3498db;
+}
+
+.shadow-control input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    background-color: white;
+    transition: .5s;
+}
+
+.shadow-control input[type="checkbox"]:checked::before {
+    transform: translateX(20px);
+}
+
 .test-button {
     padding: 10px 15px;
     background: #4a90e2;
