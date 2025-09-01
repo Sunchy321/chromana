@@ -3,17 +3,15 @@
 
 import os
 import svgutils.transform as sg
+from scripts.read_config import read_config
+from pathlib import Path
 
+BASE_PATH = 'icons/magic'
 CONFIG_PATH = 'icons/magic/config.toml'
 SHADOW_PATH = 'icons/magic/_shadow.svg'
 SHADOW_OUTPUT_PATH = 'icons/magic/shadow'
 
 os.makedirs(SHADOW_OUTPUT_PATH, exist_ok=True)
-
-def read_config(config_path):
-    import toml
-    with open(config_path, "r") as f:
-        return toml.load(f)
 
 def create_shadow(svg_path, output_path):
     fig = sg.SVGFigure(100, 100)
@@ -36,16 +34,16 @@ def create_shadow(svg_path, output_path):
     print(f"Created shadow for {svg_path} at {output_path}")
 
 def main():
-    config = read_config(CONFIG_PATH)
+    config = read_config(Path(CONFIG_PATH))
 
     symbols = config['symbols']
 
     for symbol in symbols:
         if symbol.get('add-shadow', False):
-            path = symbol['path']
+            file = symbol['file']
 
-            input_path = os.path.join(os.path.dirname(CONFIG_PATH), path)
-            output_path = os.path.join(os.path.dirname(CONFIG_PATH), f"shadow/{os.path.basename(path)}")
+            input_path = os.path.join(BASE_PATH, "default", file)
+            output_path = os.path.join(SHADOW_OUTPUT_PATH, file)
 
             create_shadow(input_path, output_path)
 

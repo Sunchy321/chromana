@@ -4,12 +4,13 @@
 import os
 import sys
 import json
-import toml
 import shutil
 import subprocess
 import glob
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
+from read_config import read_config, Symbol
+from typing import Dict, List, Tuple, Optional, TypedDict
 
 # 项目根目录
 PROJECT_ROOT = Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -47,59 +48,88 @@ def check_dependencies():
         print("brotli not found. WOFF2 conversion may not be available.")
         print("To enable WOFF2 support, install brotli: pip install brotli")
 
-# 读取配置文件
-def read_config(config_path):
-    with open(config_path, "r") as f:
-        return toml.load(f)
+class SingleSymbol(TypedDict):
+    name: str
+    variant: str
+    style: str
+    path: str
+    ligatures: list[str]
 
 # 准备nanoemoji参数
-def prepare_nanoemoji_params(font_name, svg_files, output_path, ligatures):
+class NanoEmojiParams(TypedDict):
+    font_name: str
+    output_file: str
+    symbols: list[SingleSymbol]
+
+def prepare_nanoemoji_params(
+    font_name: str,
+    base_dir: Path,
+    output_path: Path,
+    symbols: List[Symbol]
+) -> NanoEmojiParams:
     # 基本信息
     output_file = str(output_path / f"{font_name}.ttf")
 
-    # 收集有效的SVG文件和对应的ligature
-    valid_svgs = []
-    valid_ligatures = []
-    valid_names = []
+    valid_symbols: List[SingleSymbol] = []
 
-    for symbol in ligatures:
-        name = symbol["name"]
-        path = symbol["path"]
-        ligature = symbol["ligature"]
+    for sym in symbols:
+        name = sym["name"]
+        ligatures = sym["ligature"]
+        base_file = sym["file"]
 
-        # 确保SVG文件存在
-        if name in svg_files and os.path.exists(svg_files[name]):
-            valid_svgs.append(svg_files[name])
-            # 处理多个连字的情况
-            if isinstance(ligature, list):
-                valid_ligatures.append(ligature)
-            else:
-                valid_ligatures.append([ligature])
-            valid_names.append(name)
-        else:
-            print(f"Warning: SVG file for symbol {name} not found, skipping")
+        valid_symbols.append(SingleSymbol(
+            name=name,
+            variant="default",
+            style="default",
+            path=os.path.join(base_dir, "default", base_file),
+            ligatures=ligatures
+        ))
+
+        for var, file in sym["variant"].items():
+            valid_symbols.append(SingleSymbol(
+                name=name,
+                variant=var,
+                style="default",
+                path=os.path.join(base_dir, "default", file),
+                ligatures=ligatures
+            ))
+
+        for style, dir in sym["style"].items():
+            valid_symbols.append(SingleSymbol(
+                name=name,
+                variant="default",
+                style=style,
+                path=os.path.join(base_dir, style, base_file),
+                ligatures=ligatures
+            ))
+
+            for var, file in sym["variant"].items():
+                valid_symbols.append(SingleSymbol(
+                    name=name,
+                    variant=var,
+                    style=style,
+                    path=os.path.join(base_dir, dir, file),
+                    ligatures=ligatures
+                ))
 
     return {
         "font_name": font_name,
         "output_file": output_file,
-        "svgs": valid_svgs,
-        "ligatures": valid_ligatures,
-        "names": valid_names
+        "symbols": valid_symbols
     }
 
-# 使用nanoemoji生成基本字体
-def build_base_font(params_dict):
-    font_name = params_dict["font_name"]
-    output_file = params_dict["output_file"]
-    svgs = params_dict["svgs"]
-    ligatures = params_dict["ligatures"]
-    names = params_dict["names"]
+GlyphMapping = Dict[str, Tuple[str, List[str], str, str]]
 
-    if not svgs:
-        print(f"Error: No valid SVG files found for {font_name}")
+# 使用nanoemoji生成基本字体
+def build_nanoemoji_font(params: NanoEmojiParams) -> tuple[Optional[Path], Optional[GlyphMapping]]:
+    font_name = params["font_name"]
+    symbols = params["symbols"]
+
+    if not symbols:
+        print(f"Error: No valid symbols found for {font_name}")
         return None, None
 
-    print(f"Building font {font_name} with {len(svgs)} icons")
+    print(f"Building font {font_name} with {len(symbols)} icons")
 
     # 创建临时目录，用于存放重命名的SVG文件
     temp_svg_dir = TEMP_DIR / "svgs"
@@ -108,10 +138,16 @@ def build_base_font(params_dict):
     # 用于存放临时SVG文件路径
     temp_svgs = []
     # 用于存储码点与字形名称的映射
-    glyph_mappings = {}
+    glyph_mappings: GlyphMapping = {}
 
     # 为每个SVG创建一个临时副本，文件名格式符合nanoemoji的要求
-    for i, (svg, ligature_list, name) in enumerate(zip(svgs, ligatures, names)):
+    for i, sym in enumerate(symbols):
+        name = sym["name"]
+        variant = sym["variant"]
+        style = sym["style"]
+        svg = sym["path"]
+        ligatures = sym["ligatures"]
+
         # 使用私有区域码点 (Private Use Area)
         codepoint = 0xE000 + i
         hex_codepoint = f"{codepoint:04x}"
@@ -124,21 +160,8 @@ def build_base_font(params_dict):
         preprocess_svg(svg, temp_svg_path)
         temp_svgs.append(str(temp_svg_path))
 
-        # 创建有效的字形名称（只允许字母、数字和下划线）
-        # 确保名称是有效的标识符，符合OpenType字形命名规则
-        clean_name = ''.join(c for c in name if c.isalnum() or c == '_')
-        if not clean_name or not clean_name[0].isalpha():
-            clean_name = f"icon{i}" if not clean_name else f"i{clean_name}"
-
-        glyph_name = f"icon_{clean_name}"
-
-        # 确保字形名称不超过31个字符（OpenType规范的限制）
-        if len(glyph_name) > 31:
-            glyph_name = f"icon_{clean_name[:25]}_{i}"
-
         # 存储码点与字形名称的映射
-        unicode_name = f"uni{int(hex_codepoint, 16):04X}"
-        glyph_mappings[hex_codepoint] = (unicode_name, ligature_list)
+        glyph_mappings[hex_codepoint] = (name, ligatures, variant, style)
 
     print(f"Created {len(temp_svgs)} temporary SVG files with Unicode codepoints")
 
@@ -182,142 +205,222 @@ def build_base_font(params_dict):
 
     return default_output, glyph_mappings
 
+# 创建字符到标准名称的映射字典
+char_name_map = {
+    # 基本字母保持原样
+    # 'a'-'z' 和 'A'-'Z' 不需要映射，直接使用
+
+    # 数字映射到命名
+    '0': "zero",
+    '1': "one",
+    '2': "two",
+    '3': "three",
+    '4': "four",
+    '5': "five",
+    '6': "six",
+    '7': "seven",
+    '8': "eight",
+    '9': "nine",
+
+    # 标点符号
+    '.': "period",
+    ',': "comma",
+    ':': "colon",
+    ';': "semicolon",
+    '!': "exclam",
+    '?': "question",
+
+    # 引号和撇号
+    "'": "quotesingle",
+    '"': "quotedbl",
+    '`': "grave",
+
+    # 括号和大括号
+    '(': "parenleft",
+    ')': "parenright",
+    '[': "bracketleft",
+    ']': "bracketright",
+    '{': "braceleft",
+    '}': "braceright",
+    '<': "less",
+    '>': "greater",
+
+    # 其他常用符号
+    '#': "numbersign",
+    '$': "dollar",
+    '%': "percent",
+    '&': "ampersand",
+    '*': "asterisk",
+    '+': "plus",
+    '-': "hyphen",
+    '/': "slash",
+    '\\': "backslash",
+    '=': "equal",
+    '@': "at",
+    '^': "asciicircum",
+    '_': "underscore",
+    '|': "bar",
+    '~': "asciitilde",
+    ' ': "space",
+
+    '½': "onehalf",
+    '∞': "uni221E",
+}
+
+# 为小写字母和大写字母添加映射（这些通常可以直接使用，但为了统一我们也添加映射）
+for c in range(ord('a'), ord('z') + 1):
+    char_name_map[chr(c)] = chr(c)
+for c in range(ord('A'), ord('Z') + 1):
+    char_name_map[chr(c)] = chr(c)
+
+def liga_to_string(ligature: str, glyph_name: str) -> Optional[str]:
+    if not ligature or len(ligature) < 1:
+        return None
+
+    # 将每个字符转换为FEA中的正确表示
+    processed_chars = []
+
+    # 处理每个字符
+    for c in ligature:
+        # 检查字符是否在映射字典中
+        if c in char_name_map:
+            processed_chars.append(char_name_map[c])
+        # 其他字符使用Unicode命名
+        else:
+            char_code = ord(c)
+            if char_code <= 0xFFFF:
+                # BMP字符用4位十六进制表示
+                processed_chars.append(f"uni{char_code:04X}")
+            else:
+                # 非BMP字符用5-6位十六进制表示
+                processed_chars.append(f"u{char_code:06X}")
+
+    # 检查是否有成功处理的字符
+    if not processed_chars:
+        print(f"Warning: No valid characters in ligature for {glyph_name}")
+        return None
+
+    # 创建FEA规则字符串，字符之间用空格分隔
+    liga_string = " ".join(processed_chars)
+
+    return liga_string
+
 # 为字体添加连字功能
-def add_ligatures_to_font(font_file, output_file, glyph_mappings):
+def add_ligatures_to_font(font_file: Path, output_file: str, glyph_mappings: GlyphMapping):
     print(f"Adding ligatures to font: {font_file}")
 
-    # 步骤1：创建FEA文件以支持连字功能
-    fea_file = TEMP_DIR / f"{os.path.basename(output_file)}.fea"
-    fea_content = [
-        "languagesystem DFLT dflt;",
-        "languagesystem latn dflt;",
-        "",
-        "feature liga {  # Standard Ligatures"
-    ]
+    # 步骤1：创建连字规则列表
+    variants: list[str] = []
+    styles: list[str] = []
 
-    # 创建字符到标准名称的映射字典
-    char_name_map = {
-        # 基本字母保持原样
-        # 'a'-'z' 和 'A'-'Z' 不需要映射，直接使用
-
-        # 数字映射到命名
-        '0': "zero",
-        '1': "one",
-        '2': "two",
-        '3': "three",
-        '4': "four",
-        '5': "five",
-        '6': "six",
-        '7': "seven",
-        '8': "eight",
-        '9': "nine",
-
-        # 标点符号
-        '.': "period",
-        ',': "comma",
-        ':': "colon",
-        ';': "semicolon",
-        '!': "exclam",
-        '?': "question",
-
-        # 引号和撇号
-        "'": "quotesingle",
-        '"': "quotedbl",
-        '`': "grave",
-
-        # 括号和大括号
-        '(': "parenleft",
-        ')': "parenright",
-        '[': "bracketleft",
-        ']': "bracketright",
-        '{': "braceleft",
-        '}': "braceright",
-        '<': "less",
-        '>': "greater",
-
-        # 其他常用符号
-        '#': "numbersign",
-        '$': "dollar",
-        '%': "percent",
-        '&': "ampersand",
-        '*': "asterisk",
-        '+': "plus",
-        '-': "hyphen",
-        '/': "slash",
-        '\\': "backslash",
-        '=': "equal",
-        '@': "at",
-        '^': "asciicircum",
-        '_': "underscore",
-        '|': "bar",
-        '~': "asciitilde",
-        ' ': "space",
-
-        '½': "onehalf",
-        '∞': "uni221E",
-    }
-
-    # 为小写字母和大写字母添加映射（这些通常可以直接使用，但为了统一我们也添加映射）
-    for c in range(ord('a'), ord('z') + 1):
-        char_name_map[chr(c)] = chr(c)
-    for c in range(ord('A'), ord('Z') + 1):
-        char_name_map[chr(c)] = chr(c)
+    liga_list: list[tuple[str, str]] = []
+    salt_list: list[tuple[str, list[str]]] = []
+    ss0x_lists: list[list[tuple[str, str]]] = []
 
     # 为每个连字添加替换规则
     added_rules = 0
     skipped_rules = 0
 
-    for hex_codepoint, (glyph_name, ligatures) in glyph_mappings.items():
-        if not ligatures or len(ligatures) < 1:
-            print(f"Skipping empty ligature for {glyph_name}")
-            skipped_rules += 1
-            continue
+    for (glyph_name, ligatures, variant, style) in glyph_mappings.values():
+        if variant != 'default':
+            variants.append(variant)
 
-        # 处理每个连字
+        if style != 'default' and style not in styles:
+            styles.append(style)
+            ss0x_lists.append([])
+
+    groups: dict[str, tuple[list[str], dict[str, dict[str, str]]]] = {}
+
+    for hex_codepoint, (glyph_name, ligatures, variant, style) in glyph_mappings.items():
+        if glyph_name not in groups:
+            groups[glyph_name] = (ligatures, {})
+
+        if style not in groups[glyph_name][1]:
+            groups[glyph_name][1][style] = { variant : hex_codepoint }
+        else:
+            groups[glyph_name][1][style][variant] = hex_codepoint
+
+    for glyph_name, (ligatures, var_group) in groups.items():
+        # default style
+        default_variant_dict = var_group["default"]
+
+        default_hex = default_variant_dict["default"]
+
+        # default variant
         for ligature in ligatures:
-            if not ligature or len(ligature) < 1:
-                continue
-
             try:
-                # 将每个字符转换为FEA中的正确表示
-                processed_chars = []
+                liga_string = liga_to_string(ligature, glyph_name)
 
-                # 处理每个字符
-                for c in ligature:
-                    # 检查字符是否在映射字典中
-                    if c in char_name_map:
-                        processed_chars.append(char_name_map[c])
-                    # 其他字符使用Unicode命名
-                    else:
-                        char_code = ord(c)
-                        if char_code <= 0xFFFF:
-                            # BMP字符用4位十六进制表示
-                            processed_chars.append(f"uni{char_code:04X}")
-                        else:
-                            # 非BMP字符用5-6位十六进制表示
-                            processed_chars.append(f"u{char_code:06X}")
-
-                # 检查是否有成功处理的字符
-                if not processed_chars:
-                    print(f"Warning: No valid characters in ligature for {glyph_name}")
-                    skipped_rules += 1
+                if not liga_string:
                     continue
 
-                # 创建FEA规则字符串，字符之间用空格分隔
-                liga_string = " ".join(processed_chars)
-                # 使用Unicode码点作为目标字形名称
-                unicode_name = f"uni{int(hex_codepoint, 16):04X}"
-                # 添加连字替换规则
-                fea_content.append(f"  sub {liga_string} by {unicode_name};")
+                unicode_name = f"uni{int(default_hex, 16):04X}"
+                liga_list.append((liga_string, unicode_name))
                 added_rules += 1
 
             except Exception as e:
                 print(f"Error processing ligature for {glyph_name}: {e}")
                 skipped_rules += 1
 
-    print(f"Added {added_rules} ligature rules, skipped {skipped_rules} rules")
+        if len(default_variant_dict) > 1:
+            variant_hexes = [
+                hex_codepoint for variant, hex_codepoint in default_variant_dict.items() if variant != "default"
+            ]
+
+            salt_list.append((default_hex, variant_hexes))
+
+        for style, style_variant_dict in var_group.items():
+            if style == "default":
+                continue
+
+            style_index = styles.index(style)
+            ss0x_list = ss0x_lists[style_index]
+
+            for variant, hex_codepoint in style_variant_dict.items():
+                original_hex = default_variant_dict[variant]
+
+                ss0x_list.append((original_hex, f"uni{int(hex_codepoint, 16):04X}"))
+
+    # 步骤2：创建FEA文件以支持连字功能
+    fea_file = TEMP_DIR / f"{os.path.basename(output_file)}.fea"
+
+    fea_content = [
+        "languagesystem DFLT dflt;",
+        "",
+    ]
+
+    if len(liga_list) > 0:
+        fea_content.extend(["feature liga {"])
+
+        for (liga_string, unicode_name) in liga_list:
+            fea_content.append(f"  sub {liga_string} by {unicode_name};")
 
     fea_content.extend(["} liga;", ""])
+
+    if len(salt_list) > 0:
+        fea_content.append("feature salt {  # Stylistic Alternates")
+
+        for (base_hex, alt_hexes) in salt_list:
+            base_name = f"uni{int(base_hex, 16):04X}"
+            alt_names = [f"uni{int(h, 16):04X}" for h in alt_hexes]
+            alt_list = ", ".join(alt_names)
+            fea_content.append(f"  sub {base_name} by [{alt_list}];")
+
+        fea_content.append("} salt;")
+        fea_content.append("")
+
+    for i, ss0x_list in enumerate(ss0x_lists):
+        if len(ss0x_list) < 1:
+            continue
+
+        fea_content.append(f"feature ss0{i+1} {{  # Stylistic Set {i+1} ({styles[i]})")
+
+        for (original_hex, alt_name) in ss0x_list:
+            original_name = f"uni{int(original_hex, 16):04X}"
+            fea_content.append(f"  sub {original_name} by {alt_name};")
+
+        fea_content.append(f"}} ss0{i+1};")
+        fea_content.append("")
 
     # 写入FEA文件
     with open(fea_file, "w") as f:
@@ -325,7 +428,7 @@ def add_ligatures_to_font(font_file, output_file, glyph_mappings):
 
     print(f"Created feature file: {fea_file}")
 
-    # 步骤2：使用FontTools添加连字功能
+    # 步骤3：使用FontTools添加连字功能
     try:
         from fontTools.ttLib import TTFont
         from fontTools.feaLib.builder import addOpenTypeFeatures
@@ -692,7 +795,6 @@ def preprocess_svg(svg_path, temp_svg_path):
                 for i, elem in enumerate(elems[1:], 1):
                     new_id = f"{elem_id}_{i}"
                     elem.setAttribute('id', new_id)
-                    print(f"  Renamed element id=\"{elem_id}\" to id=\"{new_id}\"")
 
         # 写入修改后的SVG
         with open(temp_svg_path, 'w', encoding='utf-8') as f:
@@ -731,40 +833,30 @@ def process_icon_set(icon_dir):
 
     print(f"Found {len(symbols)} symbols in {font_name}")
 
-    # 收集SVG文件
-    svg_files = {}
-    for symbol in symbols:
-        name = symbol["name"]
-        svg_path = icon_dir_path / symbol["path"]
-        if svg_path.exists():
-            svg_files[name] = str(svg_path)
-        else:
-            print(f"Warning: SVG file {svg_path} not found")
-
     # 创建输出目录
     font_dist_dir = DIST_DIR / font_code
     font_dist_dir.mkdir(exist_ok=True)
 
     # 准备nanoemoji参数
     nanoemoji_params = prepare_nanoemoji_params(
-        f"{font_name}-{version}",
-        svg_files,
+        font_name,
+        icon_dir_path,
         font_dist_dir,
         symbols
     )
 
     # 生成TTF - 内联替代build_font_with_nanoemoji的调用
     # 第一步：生成基本字体
-    font_file, glyph_mappings = build_base_font(nanoemoji_params)
+    font_file, glyph_mappings = build_nanoemoji_font(nanoemoji_params)
 
     success = False
 
-    if font_file is not None:
+    if font_file is not None and glyph_mappings is not None:
         # 第二步：添加连字功能
         success = add_ligatures_to_font(font_file, nanoemoji_params["output_file"], glyph_mappings)
 
     # TTF路径
-    ttf_path = font_dist_dir / f"{font_name}-{version}.ttf"
+    ttf_path = font_dist_dir / f"{font_name}.ttf"
 
     # 转换为其他格式
     if success and ttf_path.exists():
@@ -851,17 +943,17 @@ def merge_fonts(font_results):
     # 准备nanoemoji参数
     merged_params = prepare_nanoemoji_params(
         merged_font_name,
-        svg_files,
+        ICONS_DIR,  # 不需要图标目录
         DIST_DIR,
         merged_symbols
     )
 
     # 生成合并字体
     # 第一步：生成基本字体
-    font_file, glyph_mappings = build_base_font(merged_params)
+    font_file, glyph_mappings = build_nanoemoji_font(merged_params)
     success = False
 
-    if font_file is not None:
+    if font_file is not None and glyph_mappings is not None:
         # 第二步：添加连字功能
         success = add_ligatures_to_font(font_file, merged_params["output_file"], glyph_mappings)
 

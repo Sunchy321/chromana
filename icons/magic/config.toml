@@ -1,6 +1,6 @@
 name = "Magic: The Gathering"
 code = "magic"
-version = "0.3.0"
+version = "0.4.0"
 
 [[categories]]
 name = "normal-mana"
@@ -30,42 +30,42 @@ display_name = "特殊符号"
 # 基础法术力
 [[symbols]]
 name="white"
-path="scryfall/W.svg"
+file="W.svg"
 ligature="{W}"
 category="normal-mana"
 add-shadow=true
 
 [[symbols]]
 name="blue"
-path="scryfall/U.svg"
+file="U.svg"
 ligature="{U}"
 category="normal-mana"
 add-shadow=true
 
 [[symbols]]
 name="black"
-path="scryfall/B.svg"
+file="B.svg"
 ligature="{B}"
 category="normal-mana"
 add-shadow=true
 
 [[symbols]]
 name="red"
-path="scryfall/R.svg"
+file="R.svg"
 ligature="{R}"
 category="normal-mana"
 add-shadow=true
 
 [[symbols]]
 name="green"
-path="scryfall/G.svg"
+file="G.svg"
 ligature="{G}"
 category="normal-mana"
 add-shadow=true
 
 [[symbols]]
 name="colorless"
-path="scryfall/C.svg"
+file="C.svg"
 ligature="{C}"
 category="normal-mana"
 add-shadow=true
@@ -73,181 +73,181 @@ add-shadow=true
 # 数字法术力
 [[symbols]]
 name="0"
-path="scryfall/0.svg"
+file="0.svg"
 ligature="{0}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="1"
-path="scryfall/1.svg"
+file="1.svg"
 ligature="{1}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="2"
-path="scryfall/2.svg"
+file="2.svg"
 ligature="{2}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="3"
-path="scryfall/3.svg"
+file="3.svg"
 ligature="{3}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="4"
-path="scryfall/4.svg"
+file="4.svg"
 ligature="{4}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="5"
-path="scryfall/5.svg"
+file="5.svg"
 ligature="{5}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="6"
-path="scryfall/6.svg"
+file="6.svg"
 ligature="{6}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="7"
-path="scryfall/7.svg"
+file="7.svg"
 ligature="{7}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="8"
-path="scryfall/8.svg"
+file="8.svg"
 ligature="{8}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="9"
-path="scryfall/9.svg"
+file="9.svg"
 ligature="{9}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="10"
-path="scryfall/10.svg"
+file="10.svg"
 ligature="{10}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="11"
-path="scryfall/11.svg"
+file="11.svg"
 ligature="{11}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="12"
-path="scryfall/12.svg"
+file="12.svg"
 ligature="{12}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="13"
-path="scryfall/13.svg"
+file="13.svg"
 ligature="{13}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="14"
-path="scryfall/14.svg"
+file="14.svg"
 ligature="{14}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="15"
-path="scryfall/15.svg"
+file="15.svg"
 ligature="{15}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="16"
-path="scryfall/16.svg"
+file="16.svg"
 ligature="{16}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="17"
-path="scryfall/17.svg"
+file="17.svg"
 ligature="{17}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="18"
-path="scryfall/18.svg"
+file="18.svg"
 ligature="{18}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="19"
-path="scryfall/19.svg"
+file="19.svg"
 ligature="{19}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="20"
-path="scryfall/20.svg"
+file="20.svg"
 ligature="{20}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="100"
-path="scryfall/100.svg"
+file="100.svg"
 ligature="{100}"
 category="number-mana"
 
 [[symbols]]
 name="1000000"
-path="scryfall/1000000.svg"
+file="1000000.svg"
 ligature="{1000000}"
 category="number-mana"
 overflow=true
 
 [[symbols]]
 name="x"
-path="scryfall/X.svg"
+file="X.svg"
 ligature="{X}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="y"
-path="scryfall/Y.svg"
+file="Y.svg"
 ligature="{Y}"
 category="number-mana"
 add-shadow=true
 
 [[symbols]]
 name="z"
-path="scryfall/Z.svg"
+file="Z.svg"
 ligature="{Z}"
 category="number-mana"
 add-shadow=true
@@ -255,140 +255,140 @@ add-shadow=true
 # 混色法术力
 [[symbols]]
 name="white-blue"
-path="scryfall/WU.svg"
+file="WU.svg"
 ligature="{W/U}"
 category="hybrid-mana"
 add-shadow=true
 
 [[symbols]]
 name="white-black"
-path="scryfall/WB.svg"
+file="WB.svg"
 ligature="{W/B}"
 category="hybrid-mana"
 add-shadow=true
 
 [[symbols]]
 name="blue-black"
-path="scryfall/UB.svg"
+file="UB.svg"
 ligature="{U/B}"
 category="hybrid-mana"
 add-shadow=true
 
 [[symbols]]
 name="blue-red"
-path="scryfall/UR.svg"
+file="UR.svg"
 ligature="{U/R}"
 category="hybrid-mana"
 add-shadow=true
 
 [[symbols]]
 name="black-red"
-path="scryfall/BR.svg"
+file="BR.svg"
 ligature="{B/R}"
 category="hybrid-mana"
 add-shadow=true
 
 [[symbols]]
 name="black-green"
-path="scryfall/BG.svg"
+file="BG.svg"
 ligature="{B/G}"
 category="hybrid-mana"
 add-shadow=true
 
 [[symbols]]
 name="red-green"
-path="scryfall/RG.svg"
+file="RG.svg"
 ligature="{R/G}"
 category="hybrid-mana"
 add-shadow=true
 
 [[symbols]]
 name="red-white"
-path="scryfall/RW.svg"
+file="RW.svg"
 ligature="{R/W}"
 category="hybrid-mana"
 add-shadow=true
 
 [[symbols]]
 name="green-white"
-path="scryfall/GW.svg"
+file="GW.svg"
 ligature="{G/W}"
 category="hybrid-mana"
 add-shadow=true
 
 [[symbols]]
 name="green-blue"
-path="scryfall/GU.svg"
+file="GU.svg"
 ligature="{G/U}"
 category="hybrid-mana"
 add-shadow=true
 
 [[symbols]]
 name="two-or-white"
-path="scryfall/2W.svg"
+file="2W.svg"
 ligature="{2/W}"
 category="hybrid-mana"
 add-shadow=true
 
 [[symbols]]
 name="two-or-blue"
-path="scryfall/2U.svg"
+file="2U.svg"
 ligature="{2/U}"
 category="hybrid-mana"
 add-shadow=true
 
 [[symbols]]
 name="two-or-black"
-path="scryfall/2B.svg"
+file="2B.svg"
 ligature="{2/B}"
 category="hybrid-mana"
 add-shadow=true
 
 [[symbols]]
 name="two-or-red"
-path="scryfall/2R.svg"
+file="2R.svg"
 ligature="{2/R}"
 category="hybrid-mana"
 add-shadow=true
 
 [[symbols]]
 name="two-or-green"
-path="scryfall/2G.svg"
+file="2G.svg"
 ligature="{2/G}"
 category="hybrid-mana"
 add-shadow=true
 
 [[symbols]]
 name="colorless-or-white"
-path="scryfall/CW.svg"
+file="CW.svg"
 ligature="{C/W}"
 category="hybrid-mana"
 add-shadow=true
 
 [[symbols]]
 name="colorless-or-blue"
-path="scryfall/CU.svg"
+file="CU.svg"
 ligature="{C/U}"
 category="hybrid-mana"
 add-shadow=true
 
 [[symbols]]
 name="colorless-or-black"
-path="scryfall/CB.svg"
+file="CB.svg"
 ligature="{C/B}"
 category="hybrid-mana"
 add-shadow=true
 
 [[symbols]]
 name="colorless-or-red"
-path="scryfall/CR.svg"
+file="CR.svg"
 ligature="{C/R}"
 category="hybrid-mana"
 add-shadow=true
 
 [[symbols]]
 name="colorless-or-green"
-path="scryfall/CG.svg"
+file="CG.svg"
 ligature="{C/G}"
 category="hybrid-mana"
 add-shadow=true
@@ -396,112 +396,112 @@ add-shadow=true
 # 非瑞法术力
 [[symbols]]
 name="white-phyrexian"
-path="scryfall/WP.svg"
+file="WP.svg"
 ligature="{W/P}"
 category="phyrexian-mana"
 add-shadow=true
 
 [[symbols]]
 name="blue-phyrexian"
-path="scryfall/UP.svg"
+file="UP.svg"
 ligature="{U/P}"
 category="phyrexian-mana"
 add-shadow=true
 
 [[symbols]]
 name="black-phyrexian"
-path="scryfall/BP.svg"
+file="BP.svg"
 ligature="{B/P}"
 category="phyrexian-mana"
 add-shadow=true
 
 [[symbols]]
 name="red-phyrexian"
-path="scryfall/RP.svg"
+file="RP.svg"
 ligature="{R/P}"
 category="phyrexian-mana"
 add-shadow=true
 
 [[symbols]]
 name="green-phyrexian"
-path="scryfall/GP.svg"
+file="GP.svg"
 ligature="{G/P}"
 category="phyrexian-mana"
 add-shadow=true
 
 [[symbols]]
 name="colorless-phyrexian"
-path="scryfall/CP.svg"
+file="CP.svg"
 ligature="{C/P}"
 category="phyrexian-mana"
 add-shadow=true
 
 [[symbols]]
 name="white-blue-phyrexian"
-path="scryfall/WUP.svg"
+file="WUP.svg"
 ligature="{W/U/P}"
 category="phyrexian-mana"
 add-shadow=true
 
 [[symbols]]
 name="white-black-phyrexian"
-path="scryfall/WBP.svg"
+file="WBP.svg"
 ligature="{W/B/P}"
 category="phyrexian-mana"
 add-shadow=true
 
 [[symbols]]
 name="blue-black-phyrexian"
-path="scryfall/UBP.svg"
+file="UBP.svg"
 ligature="{U/B/P}"
 category="phyrexian-mana"
 add-shadow=true
 
 [[symbols]]
 name="blue-red-phyrexian"
-path="scryfall/URP.svg"
+file="URP.svg"
 ligature="{U/R/P}"
 category="phyrexian-mana"
 add-shadow=true
 
 [[symbols]]
 name="black-red-phyrexian"
-path="scryfall/BRP.svg"
+file="BRP.svg"
 ligature="{B/R/P}"
 category="phyrexian-mana"
 add-shadow=true
 
 [[symbols]]
 name="black-green-phyrexian"
-path="scryfall/BGP.svg"
+file="BGP.svg"
 ligature="{B/G/P}"
 category="phyrexian-mana"
 add-shadow=true
 
 [[symbols]]
 name="red-green-phyrexian"
-path="scryfall/RGP.svg"
+file="RGP.svg"
 ligature="{R/G/P}"
 category="phyrexian-mana"
 add-shadow=true
 
 [[symbols]]
 name="red-white-phyrexian"
-path="scryfall/RWP.svg"
+file="RWP.svg"
 ligature="{R/W/P}"
 category="phyrexian-mana"
 add-shadow=true
 
 [[symbols]]
 name="green-white-phyrexian"
-path="scryfall/GWP.svg"
+file="GWP.svg"
 ligature="{G/W/P}"
 category="phyrexian-mana"
 add-shadow=true
 
 [[symbols]]
 name="green-blue-phyrexian"
-path="scryfall/GUP.svg"
+file="GUP.svg"
 ligature="{G/U/P}"
 category="phyrexian-mana"
 add-shadow=true
@@ -509,100 +509,100 @@ add-shadow=true
 # 其他符号
 [[symbols]]
 name="tap"
-path="scryfall/T.svg"
+file="T.svg"
 ligature="{T}"
 category="other"
 
 [[symbols]]
 name="untap"
-path="scryfall/Q.svg"
+file="Q.svg"
 ligature="{Q}"
 category="other"
 
 [[symbols]]
 name="snow"
-path="scryfall/S.svg"
+file="S.svg"
 ligature="{S}"
 category="other"
 add-shadow=true
 
 [[symbols]]
 name="energy"
-path="scryfall/E.svg"
+file="E.svg"
 ligature="{E}"
 category="other"
 
 [[symbols]]
 name="phyrexian"
-path="scryfall/H.svg"
+file="H.svg"
 ligature="{H}"
 category="other"
 
 [[symbols]]
 name="ticket"
-path="scryfall/TK.svg"
+file="TK.svg"
 ligature="{TK}"
 category="other"
 
 [[symbols]]
 name="paw"
-path="scryfall/P.svg"
+file="P.svg"
 ligature="{P}"
 category="other"
 
 # 特殊符号
 [[symbols]]
 name="acorn"
-path="scryfall/A.svg"
+file="A.svg"
 ligature="{A}"
 category="special"
 
 [[symbols]]
 name="infinity"
-path="scryfall/INFINITY.svg"
+file="INFINITY.svg"
 ligature=["{∞}", "{INF}"]
 category="special"
 add-shadow=true
 
 [[symbols]]
 name="half"
-path="scryfall/HALF.svg"
+file="HALF.svg"
 ligature=["{½}", "{H1}"]
 category="special"
 add-shadow=true
 
 [[symbols]]
 name="half-white"
-path="scryfall/HW.svg"
+file="HW.svg"
 ligature="{HW}"
 category="special"
 
 [[symbols]]
 name="half-red"
-path="scryfall/HR.svg"
+file="HR.svg"
 ligature="{HR}"
 category="special"
 
 [[symbols]]
 name="chaos"
-path="scryfall/CHAOS.svg"
+file="CHAOS.svg"
 ligature="{CHAOS}"
 category="special"
 
 [[symbols]]
 name="planeswalker"
-path="scryfall/PW.svg"
+file="PW.svg"
 ligature="{PW}"
 category="special"
 
 [[symbols]]
 name="land-drop"
-path="scryfall/D.svg"
+file="D.svg"
 ligature="{D}"
 category="special"
 
 [[symbols]]
 name="legendary-mana"
-path="scryfall/L.svg"
+file="L.svg"
 ligature="{L}"
 category="special"
