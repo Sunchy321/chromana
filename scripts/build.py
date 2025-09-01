@@ -54,14 +54,7 @@ class SingleSymbol(TypedDict):
     style: str
     path: str
     ligatures: list[str]
-    ascender: int
-    descender: int
 
-DEFAULT_ASCENDER = 850
-DEFAULT_DESCENDER = -150
-
-SHADOW_ASCENDER = 900
-SHADOW_DESCENDER = -200
 
 # 准备nanoemoji参数
 class NanoEmojiParams(TypedDict):
@@ -90,9 +83,7 @@ def prepare_nanoemoji_params(
             variant="default",
             style="default",
             path=os.path.join(base_dir, "default", base_file),
-            ligatures=ligatures,
-            ascender=DEFAULT_ASCENDER,
-            descender=DEFAULT_DESCENDER
+            ligatures=ligatures
         ))
 
         for var, file in sym["variant"].items():
@@ -101,9 +92,7 @@ def prepare_nanoemoji_params(
                 variant=var,
                 style="default",
                 path=os.path.join(base_dir, "default", file),
-                ligatures=ligatures,
-                ascender=DEFAULT_ASCENDER,
-                descender=DEFAULT_DESCENDER
+                ligatures=ligatures
             ))
 
         for style, dir in sym["style"].items():
@@ -112,9 +101,7 @@ def prepare_nanoemoji_params(
                 variant="default",
                 style=style,
                 path=os.path.join(base_dir, style, base_file),
-                ligatures=ligatures,
-                ascender=SHADOW_ASCENDER if style == "shadow" else DEFAULT_ASCENDER,
-                descender=SHADOW_DESCENDER if style == "shadow" else DEFAULT_DESCENDER
+                ligatures=ligatures
             ))
 
             for var, file in sym["variant"].items():
@@ -123,9 +110,7 @@ def prepare_nanoemoji_params(
                     variant=var,
                     style=style,
                     path=os.path.join(base_dir, dir, file),
-                    ligatures=ligatures,
-                    ascender=SHADOW_ASCENDER if style == "shadow" else DEFAULT_ASCENDER,
-                    descender=SHADOW_DESCENDER if style == "shadow" else DEFAULT_DESCENDER
+                    ligatures=ligatures
                 ))
 
     return {
@@ -134,7 +119,7 @@ def prepare_nanoemoji_params(
         "symbols": valid_symbols
     }
 
-GlyphMapping = Dict[str, Tuple[str, List[str], str, str]]
+GlyphMapping = Dict[str, SingleSymbol]
 
 # 使用nanoemoji生成基本字体
 def build_nanoemoji_font(params: NanoEmojiParams) -> tuple[Optional[Path], Optional[GlyphMapping]]:
@@ -158,11 +143,7 @@ def build_nanoemoji_font(params: NanoEmojiParams) -> tuple[Optional[Path], Optio
 
     # 为每个SVG创建一个临时副本，文件名格式符合nanoemoji的要求
     for i, sym in enumerate(symbols):
-        name = sym["name"]
-        variant = sym["variant"]
-        style = sym["style"]
         svg = sym["path"]
-        ligatures = sym["ligatures"]
 
         # 使用私有区域码点 (Private Use Area)
         codepoint = 0xE000 + i
@@ -177,7 +158,7 @@ def build_nanoemoji_font(params: NanoEmojiParams) -> tuple[Optional[Path], Optio
         temp_svgs.append(str(temp_svg_path))
 
         # 存储码点与字形名称的映射
-        glyph_mappings[hex_codepoint] = (name, ligatures, variant, style)
+        glyph_mappings[hex_codepoint] = sym
 
     print(f"Created {len(temp_svgs)} temporary SVG files with Unicode codepoints")
 
@@ -196,6 +177,7 @@ def build_nanoemoji_font(params: NanoEmojiParams) -> tuple[Optional[Path], Optio
         "--width", "1000",
         "--ascender", "850",
         "--descender", "-150",
+        "--noclip_to_viewbox",
         *temp_svgs
     ]
 
@@ -340,7 +322,10 @@ def add_ligatures_to_font(font_file: Path, output_file: str, glyph_mappings: Gly
     added_rules = 0
     skipped_rules = 0
 
-    for (glyph_name, ligatures, variant, style) in glyph_mappings.values():
+    for sym in glyph_mappings.values():
+        variant = sym["variant"]
+        style = sym["style"]
+
         if variant != 'default':
             variants.append(variant)
 
@@ -350,7 +335,12 @@ def add_ligatures_to_font(font_file: Path, output_file: str, glyph_mappings: Gly
 
     groups: dict[str, tuple[list[str], dict[str, dict[str, str]]]] = {}
 
-    for hex_codepoint, (glyph_name, ligatures, variant, style) in glyph_mappings.items():
+    for hex_codepoint, sym in glyph_mappings.items():
+        glyph_name = sym["name"]
+        ligatures = sym["ligatures"]
+        variant = sym["variant"]
+        style = sym["style"]
+
         if glyph_name not in groups:
             groups[glyph_name] = (ligatures, {})
 
@@ -1016,7 +1006,7 @@ def process_icon_set(icon_dir):
         return None
 
 # 合并所有字体
-def merge_fonts(font_results):
+def merge_all_fonts(font_results):
     if not font_results:
         print("No fonts to merge")
         return
@@ -1319,11 +1309,11 @@ def main():
 
     # 生成合并字体
     if len(results) > 1:
-        merge_fonts(results)
+        merge_all_fonts(results)
 
     # 清理临时文件
     print("Cleaning up temporary files...")
-    shutil.rmtree(TEMP_DIR, ignore_errors=True)
+    # shutil.rmtree(TEMP_DIR, ignore_errors=True)
 
     print("Build complete!")
 

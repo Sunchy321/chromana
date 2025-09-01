@@ -2,9 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 import svgutils.transform as sg
-from scripts.read_config import read_config
 from pathlib import Path
+
+# 添加父目录到系统路径，以便导入父目录中的模块
+sys.path.append(str(Path(__file__).parent.parent))
+from read_config import read_config
 
 BASE_PATH = 'icons/magic'
 CONFIG_PATH = 'icons/magic/config.toml'
@@ -39,7 +43,7 @@ def main():
     symbols = config['symbols']
 
     for symbol in symbols:
-        if symbol.get('add-shadow', False):
+        if symbol.get('add_shadow', False):
             file = symbol['file']
 
             input_path = os.path.join(BASE_PATH, "default", file)
