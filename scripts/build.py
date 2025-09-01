@@ -177,6 +177,9 @@ def build_nanoemoji_font(params: NanoEmojiParams) -> tuple[Optional[Path], Optio
         "--family", font_name,
         "--color_format", "glyf_colr_0",
         "--output_file", str(default_output),
+        "--width", "1000",
+        "--ascender", "850",
+        "--descender", "-150",
         *temp_svgs
     ]
 
@@ -576,7 +579,6 @@ def generate_css(font_name, font_files, font_code):
   font-family: '{font_name}';
   font-weight: normal;
   font-style: normal;
-  font-size: 24px;  /* 默认图标大小 */
   display: inline-block;
   line-height: 1;
   text-transform: none;
@@ -596,7 +598,7 @@ def generate_css(font_name, font_files, font_code):
 }}
 
 /* 阴影模式 */
-.shadow-mode {{
+.shadow {{
   font-feature-settings: 'liga', 'ss01';
 }}
 """
@@ -607,7 +609,7 @@ def generate_css(font_name, font_files, font_code):
     return css_path
 
 # 生成示例HTML
-def generate_html(font_name, font_code, symbols, css_path, categories=None):
+def generate_html(font_name, font_code, symbols, css_path, categories=None, examples=None):
     # 创建分类名称映射，用于显示友好的分类名称
     category_display_names = {}
     category_order = []  # 用于保持分类的顺序
@@ -758,6 +760,40 @@ def generate_html(font_name, font_code, symbols, css_path, categories=None):
       <p>提示: 输入符号代码来测试连字功能。启用"阴影模式"可以切换显示带阴影的符号。</p>
     </section>
 
+    <!-- 示例部分 -->
+    <section class="section examples">
+      <h2>使用示例</h2>
+      <div class="example-container">
+        <h3>在HTML中使用</h3>
+        <div class="example-code">
+          <pre><code>&lt;!-- 在CSS中引入字体 --&gt;
+&lt;link rel="stylesheet" href="path/to/{font_code}.css"&gt;
+
+&lt;!-- 使用图标 --&gt;
+&lt;i class="{font_code}-icon"&gt;图标代码&lt;/i&gt;
+
+&lt;!-- 使用带阴影效果的图标 --&gt;
+&lt;i class="{font_code}-icon shadow"&gt;图标代码&lt;/i&gt;</code></pre>
+        </div>
+
+        <h3>在CSS中使用</h3>
+        <div class="example-code">
+          <pre><code>.my-icon::before {{
+  font-family: '{font_name}';
+  content: '图标代码';
+  /* 其他样式 */
+  font-size: 24px;
+  color: #333;
+}}</code></pre>
+        </div>
+
+        <h3>文本示例</h3>
+        <div class="text-examples">
+          {generate_examples_html(font_code, examples)}
+        </div>
+      </div>
+    </section>
+
     <!-- 符号展示 -->
     <section class="section">
       <h2>符号展示</h2>
@@ -773,12 +809,77 @@ def generate_html(font_name, font_code, symbols, css_path, categories=None):
 
     return html_path
 
+def generate_examples_html(font_code, examples=None):
+    """
+    根据配置文件中的示例生成HTML代码，优化长文本的显示
+    """
+    if not examples or len(examples) == 0:
+        # 如果没有配置示例，则使用默认示例
+        return f"""
+          <div class="example-text-container">
+            <div class="example-text-content">
+              <div style="font-size: 18px; line-height: 1.6;">
+                这是一个长文本示例，展示如何使用字体显示大段文字。这种布局更适合阅读大段文本内容，
+                可以更清晰地看到字体在实际使用场景中的效果。段落中的连字符会自动转换为相应的图标，
+                例如可以在文本中插入图标代码，使文本内容更加丰富多样。
+              </div>
+            </div>
+            <div class="example-desc">普通文本示例</div>
+          </div>
+
+          <div class="example-text-container">
+            <div class="example-text-content">
+              <div class="shadow" style="font-size: 18px; line-height: 1.6;">
+                这是带阴影效果的文本示例，可以看到字体的阴影效果。在一些需要强调的场景下，
+                使用阴影效果可以让图标更加醒目。同样，这里也可以插入各种图标代码，
+                使得内容更加丰富多彩，提升视觉体验。
+              </div>
+            </div>
+            <div class="example-desc">带阴影效果的文本示例</div>
+          </div>
+        """
+
+    # 使用配置中的示例
+    examples_html = ""
+    for i, example in enumerate(examples):
+        text = example.get("text", "这是一个示例文本")
+        desc = example.get("desc", f"示例 {i+1}")
+
+        # 处理可选的样式属性
+        font_size = example.get("font_size", "14px")
+        line_height = example.get("line_height", "1.6")
+        color = example.get("color", "")
+        is_shadow = example.get("shadow", False)
+        width = example.get("width", "100%")
+
+        # 构建样式字符串
+        style = f'font-size: {font_size}; line-height: {line_height};'
+        if color:
+            style += f' color: {color};'
+
+        # 处理阴影模式
+        shadow_class = " shadow" if is_shadow else ""
+
+        examples_html += f"""
+          <div class="example-text-container" style="width: {width};">
+            <div class="example-text-content">
+              <div style="{style}">
+                {text}
+              </div>
+            </div>
+            <div class="example-desc">{desc}</div>
+          </div>
+        """
+
+    return examples_html
+
 # 预处理SVG文件，修复ID重复等问题
 def preprocess_svg(svg_path, temp_svg_path):
     """
     预处理SVG文件，修复一些常见问题：
     1. 重复的元素ID
     2. 不兼容的元素
+    3. 设置SVG尺寸为宽100高120
     """
     import re
     from xml.dom import minidom
@@ -786,6 +887,18 @@ def preprocess_svg(svg_path, temp_svg_path):
     try:
         # 使用minidom解析SVG文件
         dom = minidom.parse(svg_path)
+
+        # 获取SVG根元素并设置宽度和高度
+        svg_elements = dom.getElementsByTagName('svg')
+        if svg_elements:
+            svg_root = svg_elements[0]
+            # 设置宽度和高度为100x120
+            svg_root.setAttribute('width', '100')
+            svg_root.setAttribute('height', '120')
+            # 确保viewBox属性合适
+            if not svg_root.hasAttribute('viewBox'):
+                # 如果没有viewBox，添加一个默认值
+                svg_root.setAttribute('viewBox', '0 0 100 120')
 
         # 获取所有带有id属性的元素
         elements_with_ids = {}
@@ -875,7 +988,8 @@ def process_icon_set(icon_dir):
         css_path = generate_css(font_name, font_files, font_code)
 
         # 生成示例HTML
-        html_path = generate_html(font_name, font_code, symbols, css_path, categories)
+        examples = config.get("example", [])
+        html_path = generate_html(font_name, font_code, symbols, css_path, categories, examples)
 
         print(f"Generated font files for {font_name}:")
         for fmt, path in font_files.items():
@@ -916,10 +1030,11 @@ def merge_fonts(font_results):
     # 收集所有图标
     for font in font_results:
         for symbol in font["symbols"]:
-            # 复制SVG文件到临时目录
+            # 使用预处理函数复制并调整SVG文件尺寸到临时目录
             orig_svg_path = Path(ICONS_DIR) / font["code"] / symbol["path"]
             temp_svg_path = TEMP_DIR / f"{font['code']}_{symbol['name']}.svg"
-            shutil.copy2(orig_svg_path, temp_svg_path)
+            # 使用preprocess_svg而不是直接复制，确保设置尺寸为宽100高120
+            preprocess_svg(orig_svg_path, temp_svg_path)
 
             # 添加到合并列表
             all_symbols.append({
@@ -1100,8 +1215,40 @@ def merge_fonts(font_results):
   </div>
 """
 
-        # 完成HTML
-        merged_html += """
+        # 添加示例部分
+        merged_html += f"""
+  <!-- 示例部分 -->
+  <div style="max-width: 1200px; margin: 40px auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <h2 style="color: #333; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee;">使用示例</h2>
+
+    <h3 style="color: #444; margin-top: 24px;">在HTML中使用</h3>
+    <div style="background-color: #f8f8f8; border-radius: 6px; padding: 16px; overflow-x: auto; margin-bottom: 20px;">
+      <pre style="margin: 0; white-space: pre-wrap; font-family: monospace;">&lt;!-- 在CSS中引入字体 --&gt;
+&lt;link rel="stylesheet" href="path/to/{merged_font_code}.css"&gt;
+
+&lt;!-- 使用图标 --&gt;
+&lt;i class="{merged_font_code}-icon"&gt;图标代码&lt;/i&gt;
+
+&lt;!-- 使用带阴影效果的图标 --&gt;
+&lt;i class="{merged_font_code}-icon shadow"&gt;图标代码&lt;/i&gt;</pre>
+    </div>
+
+    <h3 style="color: #444; margin-top: 24px;">在CSS中使用</h3>
+    <div style="background-color: #f8f8f8; border-radius: 6px; padding: 16px; overflow-x: auto; margin-bottom: 20px;">
+      <pre style="margin: 0; white-space: pre-wrap; font-family: monospace;">.my-icon::before {{
+  font-family: '{merged_font_name}';
+  content: '图标代码';
+  /* 其他样式 */
+  font-size: 24px;
+  color: #333;
+}}</pre>
+    </div>
+
+    <h3 style="color: #444; margin-top: 24px;">实际效果示例</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 30px; margin-top: 20px;">
+      {generate_merged_examples_html(merged_font_code)}
+    </div>
+  </div>
 </body>
 </html>
 """
@@ -1116,6 +1263,33 @@ def merge_fonts(font_results):
                 print(f"  - {fmt}: {path}")
         print(f"  - CSS: {merged_css_path}")
         print(f"  - HTML demo: {merged_html_path}")
+
+def generate_merged_examples_html(font_code):
+    """
+    为合并字体生成示例HTML
+    """
+    return f"""
+      <div style="display: flex; flex-direction: column; align-items: center; min-width: 150px;">
+        <div style="display: flex; align-items: center; justify-content: center; background-color: white; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); width: 100px; height: 100px; margin-bottom: 10px;">
+          <i class="{font_code}-icon" style="font-size: 32px;">example</i>
+        </div>
+        <div style="font-size: 14px; color: #666; text-align: center;">普通图标</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; min-width: 150px;">
+        <div style="display: flex; align-items: center; justify-content: center; background-color: white; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); width: 100px; height: 100px; margin-bottom: 10px;">
+          <i class="{font_code}-icon shadow" style="font-size: 32px;">example</i>
+        </div>
+        <div style="font-size: 14px; color: #666; text-align: center;">带阴影效果</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; align-items: center; min-width: 150px;">
+        <div style="display: flex; align-items: center; justify-content: center; background-color: white; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); width: 100px; height: 100px; margin-bottom: 10px;">
+          <i class="{font_code}-icon" style="font-size: 48px; color: #ff5722;">example</i>
+        </div>
+        <div style="font-size: 14px; color: #666; text-align: center;">自定义大小和颜色</div>
+      </div>
+    """
 
 def main():
     # 检查依赖

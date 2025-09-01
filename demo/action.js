@@ -34,17 +34,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // 更新测试输出区域
         if (shadowMode) {
-            testOutput.classList.add('shadow-mode');
+            testOutput.classList.add('shadow');
         } else {
-            testOutput.classList.remove('shadow-mode');
+            testOutput.classList.remove('shadow');
         }
 
         // 更新所有图标
         document.querySelectorAll('.magic-icon').forEach(icon => {
             if (shadowMode) {
-                icon.classList.add('shadow-mode');
+                icon.classList.add('shadow');
             } else {
-                icon.classList.remove('shadow-mode');
+                icon.classList.remove('shadow');
             }
         });
     });

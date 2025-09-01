@@ -17,7 +17,6 @@
   font-family: 'Chromana-magic';
   font-weight: normal;
   font-style: normal;
-  font-size: 24px;  /* 默认图标大小 */
   display: inline-block;
   line-height: 1;
   text-transform: none;
@@ -37,6 +36,6 @@
 }
 
 /* 阴影模式 */
-.shadow-mode {
+.shadow {
   font-feature-settings: 'liga', 'ss01';
 }

@@ -2,6 +2,12 @@ name = "Magic: The Gathering"
 code = "magic"
 version = "0.4.0"
 
+[[example]]
+text = '<span class="magic-icon">{W}{U}{U}</span>, <span class="magic-icon">{T}</span>, Pay X <span class="magic-icon">{E}</span>: Draw X cards.'
+
+[[example]]
+text = '<span class="magic-icon">{W}{U}{U}</span>，<span class="magic-icon">{T}</span>，支付X个<span class="magic-icon">{E}</span>：抓X张牌。'
+
 [[categories]]
 name = "normal-mana"
 display_name = "基础法术力"
@@ -25,7 +31,6 @@ display_name = "其他符号"
 [[categories]]
 name = "special"
 display_name = "特殊符号"
-
 
 # 基础法术力
 [[symbols]]

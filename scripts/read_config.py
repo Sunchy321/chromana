@@ -19,16 +19,22 @@ class Category(TypedDict):
     name: str
     display_name: str
 
+class Example(TypedDict):
+    text: str
+
 class Config(TypedDict):
     name: str
     code: str
     version: str
+    example: Optional[List[Example]]
     categories: Optional[List[Category]]
     symbols: List[Symbol]
 
 def read_config(config_path: Path) -> Config:
     with open(config_path, "r") as f:
         raw = toml.load(f)
+
+    example = raw.get("example")
 
     categories = raw.get("categories")
 
@@ -70,6 +76,7 @@ def read_config(config_path: Path) -> Config:
         name=raw.get("name", ""),
         code=raw["code"],
         version=raw["version"],
+        example=example,
         categories=categories,
         symbols=symbols
     )

@@ -154,6 +154,65 @@ h1, h2, h3 {
     margin-bottom: 10px;
 }
 
+/* 示例部分样式 */
+.examples {
+    margin-top: 40px;
+}
+
+.example-container h3 {
+    margin-top: 30px;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.example-code {
+    background-color: #f8f8f8;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+}
+
+.example-code pre {
+    margin: 0;
+    white-space: pre-wrap;
+    font-family: monospace;
+}
+
+.example-text-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.example-text-content {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-bottom: 10px;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+.example-text-content div {
+    max-height: 300px;
+    overflow-y: auto;
+    width: 100%;
+    white-space: pre-wrap;
+}
+
+.example-desc {
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+}
+
+.text-examples {
+    margin-top: 30px;
+    width: 100%;
+}
+
 .symbol-category {
     margin-bottom: 30px;
 }
@@ -168,3 +227,4 @@ h1, h2, h3 {
 .wide-icon {
     grid-column: span 2;
 }
+
