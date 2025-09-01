@@ -28,6 +28,7 @@ dependencies = [
     "nanoemoji",
     "toml",
     "brotli",
+    "svgutils",
 ]
 
 [project.urls]
