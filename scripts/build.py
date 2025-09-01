@@ -54,6 +54,14 @@ class SingleSymbol(TypedDict):
     style: str
     path: str
     ligatures: list[str]
+    ascender: int
+    descender: int
+
+DEFAULT_ASCENDER = 850
+DEFAULT_DESCENDER = -150
+
+SHADOW_ASCENDER = 900
+SHADOW_DESCENDER = -200
 
 # 准备nanoemoji参数
 class NanoEmojiParams(TypedDict):
@@ -82,7 +90,9 @@ def prepare_nanoemoji_params(
             variant="default",
             style="default",
             path=os.path.join(base_dir, "default", base_file),
-            ligatures=ligatures
+            ligatures=ligatures,
+            ascender=DEFAULT_ASCENDER,
+            descender=DEFAULT_DESCENDER
         ))
 
         for var, file in sym["variant"].items():
@@ -91,7 +101,9 @@ def prepare_nanoemoji_params(
                 variant=var,
                 style="default",
                 path=os.path.join(base_dir, "default", file),
-                ligatures=ligatures
+                ligatures=ligatures,
+                ascender=DEFAULT_ASCENDER,
+                descender=DEFAULT_DESCENDER
             ))
 
         for style, dir in sym["style"].items():
@@ -100,7 +112,9 @@ def prepare_nanoemoji_params(
                 variant="default",
                 style=style,
                 path=os.path.join(base_dir, style, base_file),
-                ligatures=ligatures
+                ligatures=ligatures,
+                ascender=SHADOW_ASCENDER if style == "shadow" else DEFAULT_ASCENDER,
+                descender=SHADOW_DESCENDER if style == "shadow" else DEFAULT_DESCENDER
             ))
 
             for var, file in sym["variant"].items():
@@ -109,7 +123,9 @@ def prepare_nanoemoji_params(
                     variant=var,
                     style=style,
                     path=os.path.join(base_dir, dir, file),
-                    ligatures=ligatures
+                    ligatures=ligatures,
+                    ascender=SHADOW_ASCENDER if style == "shadow" else DEFAULT_ASCENDER,
+                    descender=SHADOW_DESCENDER if style == "shadow" else DEFAULT_DESCENDER
                 ))
 
     return {
@@ -879,7 +895,6 @@ def preprocess_svg(svg_path, temp_svg_path):
     预处理SVG文件，修复一些常见问题：
     1. 重复的元素ID
     2. 不兼容的元素
-    3. 设置SVG尺寸为宽100高120
     """
     import re
     from xml.dom import minidom
@@ -887,18 +902,6 @@ def preprocess_svg(svg_path, temp_svg_path):
     try:
         # 使用minidom解析SVG文件
         dom = minidom.parse(svg_path)
-
-        # 获取SVG根元素并设置宽度和高度
-        svg_elements = dom.getElementsByTagName('svg')
-        if svg_elements:
-            svg_root = svg_elements[0]
-            # 设置宽度和高度为100x120
-            svg_root.setAttribute('width', '100')
-            svg_root.setAttribute('height', '120')
-            # 确保viewBox属性合适
-            if not svg_root.hasAttribute('viewBox'):
-                # 如果没有viewBox，添加一个默认值
-                svg_root.setAttribute('viewBox', '0 0 100 120')
 
         # 获取所有带有id属性的元素
         elements_with_ids = {}
