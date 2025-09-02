@@ -295,6 +295,7 @@ name="white-blue"
 file="WU.svg"
 ligature="{W/U}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 [[symbols]]
@@ -302,6 +303,7 @@ name="white-black"
 file="WB.svg"
 ligature="{W/B}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 [[symbols]]
@@ -309,6 +311,7 @@ name="blue-black"
 file="UB.svg"
 ligature="{U/B}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 [[symbols]]
@@ -316,6 +319,7 @@ name="blue-red"
 file="UR.svg"
 ligature="{U/R}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 [[symbols]]
@@ -323,6 +327,7 @@ name="black-red"
 file="BR.svg"
 ligature="{B/R}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 [[symbols]]
@@ -330,6 +335,7 @@ name="black-green"
 file="BG.svg"
 ligature="{B/G}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 [[symbols]]
@@ -337,6 +343,7 @@ name="red-green"
 file="RG.svg"
 ligature="{R/G}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 [[symbols]]
@@ -344,6 +351,7 @@ name="red-white"
 file="RW.svg"
 ligature="{R/W}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 [[symbols]]
@@ -351,6 +359,7 @@ name="green-white"
 file="GW.svg"
 ligature="{G/W}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 [[symbols]]
@@ -358,6 +367,7 @@ name="green-blue"
 file="GU.svg"
 ligature="{G/U}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 [[symbols]]
@@ -365,6 +375,7 @@ name="two-or-white"
 file="2W.svg"
 ligature="{2/W}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 [[symbols]]
@@ -372,6 +383,7 @@ name="two-or-blue"
 file="2U.svg"
 ligature="{2/U}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 [[symbols]]
@@ -379,6 +391,7 @@ name="two-or-black"
 file="2B.svg"
 ligature="{2/B}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 [[symbols]]
@@ -386,6 +399,7 @@ name="two-or-red"
 file="2R.svg"
 ligature="{2/R}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 [[symbols]]
@@ -393,6 +407,7 @@ name="two-or-green"
 file="2G.svg"
 ligature="{2/G}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 [[symbols]]
@@ -400,6 +415,7 @@ name="colorless-or-white"
 file="CW.svg"
 ligature="{C/W}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 [[symbols]]
@@ -407,6 +423,7 @@ name="colorless-or-blue"
 file="CU.svg"
 ligature="{C/U}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 [[symbols]]
@@ -414,6 +431,7 @@ name="colorless-or-black"
 file="CB.svg"
 ligature="{C/B}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 [[symbols]]
@@ -421,6 +439,7 @@ name="colorless-or-red"
 file="CR.svg"
 ligature="{C/R}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 [[symbols]]
@@ -428,6 +447,7 @@ name="colorless-or-green"
 file="CG.svg"
 ligature="{C/G}"
 category="hybrid-mana"
+style={ flat="flat" }
 add-shadow=true
 
 # 非瑞法术力

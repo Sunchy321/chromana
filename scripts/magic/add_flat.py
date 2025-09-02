@@ -24,9 +24,19 @@ fill_map = {
     '#CCC2C0': '#281C1C',
     '#F9AA8F': '#FD2302',
     '#9BD3AE': '#027920',
+
+    '#C3BAB9': '#000000',
+    
+    # phyrexian colors
+    '#EAE3B1': '#89723E',
+    '#8EBBD0': '#0172BB',
+    '#9A8D89': '#281C1C',
+    '#DF8065': '#FD2302',
+    '#80B092': '#027920',
+    '#CCC2C0': '#000000',
 }
 
-def create_flat(svg_path, output_path):
+def create_flat(svg_path: str, output_path: str, flat_type: str):
     fig = sg.SVGFigure(100, 100)
 
     fig1 = sg.fromfile(svg_path)
@@ -48,19 +58,34 @@ def create_flat(svg_path, output_path):
             basic_fill = child.get('fill')
             continue
 
+        # Split icons
+        if child.get('id') == 'Shape':
+            basic_fill = '#CAC5C0'
+            continue
+
         child.set('transform', 'translate(50, 50) scale(0.9) translate(-50, -50)')
 
         if 'fill' in child.keys():
-            if fill_map.get(basic_fill) is None:
-                raise ValueError(f"Unknown fill color: {basic_fill} in {svg_path}")
+            if flat_type == 'split':
+                fill = child.get('fill')
 
-            child.set('fill', fill_map[basic_fill])
+                if fill_map.get(fill) is None:
+                    raise ValueError(f"Unknown fill color: {fill} in {svg_path}")
+
+                child.set('fill', fill_map[fill])
+            else:
+                if fill_map.get(basic_fill) is None:
+                    raise ValueError(f"Unknown fill color: {basic_fill} in {svg_path}")
+                child.set('fill', fill_map[basic_fill])
 
         g.root.append(child)
 
     circle = plot2[0]
 
-    circle.root.set('fill', fill_map[basic_fill])
+    if flat_type == 'split':
+        circle.root.set('fill', '#000000')
+    else:
+        circle.root.set('fill', fill_map[basic_fill])
 
     fig.append([plot2, plot1])
 
@@ -82,7 +107,7 @@ def main():
             input_path = os.path.join(BASE_PATH, "default", file)
             output_path = os.path.join(FLAT_OUTPUT_PATH, file)
 
-            create_flat(input_path, output_path)
+            create_flat(input_path, output_path, symbol['add_flat'])
 
 
 if __name__ == "__main__":

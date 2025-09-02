@@ -15,7 +15,7 @@ class Symbol(TypedDict):
     variant: dict[str, str]
     style: dict[str, str]
     add_shadow: bool
-    add_flat: bool
+    add_flat: Optional[str]
 
 class Category(TypedDict):
     name: str
@@ -59,7 +59,10 @@ def read_config(config_path: Path) -> Config:
         variant = sym.get("variant", {})
         style = sym.get("style", {})
         add_shadow = sym.get("add-shadow", False)
-        add_flat = sym.get("add-flat", False)
+        add_flat = sym.get("add-flat", None)
+
+        if add_flat == True:
+            add_flat = 'default'
 
         if add_shadow:
             style["shadow"] = SHADOW_DIR
