@@ -1,6 +1,6 @@
 name = "Magic: The Gathering"
 code = "magic"
-version = "0.6.0"
+version = "0.7.0"
 
 [[example]]
 text = '<span class="magic-icon">{W}{U}{U}</span>, <span class="magic-icon">{T}</span>, Pay X <span class="magic-icon">{E}</span>: Draw X cards.'
@@ -589,6 +589,7 @@ name="snow"
 file="S.svg"
 ligature="{S}"
 category="other"
+style={ flat = "flat" }
 add-shadow=true
 
 [[symbols]]
