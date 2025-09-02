@@ -295,8 +295,8 @@ name="white-blue"
 file="WU.svg"
 ligature="{W/U}"
 category="hybrid-mana"
-style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "white_up", "blue_down"]
 
 [[symbols]]
 name="white-black"
@@ -305,150 +305,151 @@ ligature="{W/B}"
 category="hybrid-mana"
 style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "white_up", "black_down"]
 
 [[symbols]]
 name="blue-black"
 file="UB.svg"
 ligature="{U/B}"
 category="hybrid-mana"
-style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "blue_up", "black_down"]
 
 [[symbols]]
 name="blue-red"
 file="UR.svg"
 ligature="{U/R}"
 category="hybrid-mana"
-style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "blue_up", "red_down"]
 
 [[symbols]]
 name="black-red"
 file="BR.svg"
 ligature="{B/R}"
 category="hybrid-mana"
-style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "black_up", "red_down"]
 
 [[symbols]]
 name="black-green"
 file="BG.svg"
 ligature="{B/G}"
 category="hybrid-mana"
-style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "black_up", "green_down"]
 
 [[symbols]]
 name="red-green"
 file="RG.svg"
 ligature="{R/G}"
 category="hybrid-mana"
-style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "red_up", "green_down"]
 
 [[symbols]]
 name="red-white"
 file="RW.svg"
 ligature="{R/W}"
 category="hybrid-mana"
-style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "red_up", "white_down"]
 
 [[symbols]]
 name="green-white"
 file="GW.svg"
 ligature="{G/W}"
 category="hybrid-mana"
-style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "green_up", "white_down"]
 
 [[symbols]]
 name="green-blue"
 file="GU.svg"
 ligature="{G/U}"
 category="hybrid-mana"
-style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "green_up", "blue_down"]
 
 [[symbols]]
 name="two-or-white"
 file="2W.svg"
 ligature="{2/W}"
 category="hybrid-mana"
-style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "two_up", "white_down"]
 
 [[symbols]]
 name="two-or-blue"
 file="2U.svg"
 ligature="{2/U}"
 category="hybrid-mana"
-style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "two_up", "blue_down"]
 
 [[symbols]]
 name="two-or-black"
 file="2B.svg"
 ligature="{2/B}"
 category="hybrid-mana"
-style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "two_up", "black_down"]
 
 [[symbols]]
 name="two-or-red"
 file="2R.svg"
 ligature="{2/R}"
 category="hybrid-mana"
-style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "two_up", "red_down"]
 
 [[symbols]]
 name="two-or-green"
 file="2G.svg"
 ligature="{2/G}"
 category="hybrid-mana"
-style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "two_up", "green_down"]
 
 [[symbols]]
 name="colorless-or-white"
 file="CW.svg"
 ligature="{C/W}"
 category="hybrid-mana"
-style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "colorless_up", "white_down"]
 
 [[symbols]]
 name="colorless-or-blue"
 file="CU.svg"
 ligature="{C/U}"
 category="hybrid-mana"
-style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "colorless_up", "blue_down"]
 
 [[symbols]]
 name="colorless-or-black"
 file="CB.svg"
 ligature="{C/B}"
 category="hybrid-mana"
-style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "colorless_up", "black_down"]
 
 [[symbols]]
 name="colorless-or-red"
 file="CR.svg"
 ligature="{C/R}"
 category="hybrid-mana"
-style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "colorless_up", "red_down"]
 
 [[symbols]]
 name="colorless-or-green"
 file="CG.svg"
 ligature="{C/G}"
 category="hybrid-mana"
-style={ flat="flat" }
 add-shadow=true
+add-flat=["flat_split", "colorless_up", "green_down"]
 
 # 非瑞法术力
 [[symbols]]

@@ -12,7 +12,7 @@ from read_config import read_config
 
 BASE_PATH = 'icons/magic'
 CONFIG_PATH = 'icons/magic/config.toml'
-SHADOW_PATH = 'icons/magic/_shadow.svg'
+SHADOW_PATH = 'icons/magic/components/_shadow.svg'
 SHADOW_OUTPUT_PATH = 'icons/magic/shadow'
 
 os.makedirs(SHADOW_OUTPUT_PATH, exist_ok=True)
