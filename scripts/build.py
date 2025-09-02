@@ -603,9 +603,20 @@ def generate_css(font_name, font_files, font_code):
   font-feature-settings: 'liga';
 }}
 
+/* 不同模式的样式 */
+/* 普通模式（默认） */
+.normal {{
+  font-feature-settings: 'liga';
+}}
+
 /* 阴影模式 */
 .shadow {{
   font-feature-settings: 'liga', 'ss01';
+}}
+
+/* 扁平模式 */
+.flat {{
+  font-feature-settings: 'liga', 'ss02';
 }}
 """
     css_path = DEMO_DIR / f"{font_code}.css"
@@ -743,6 +754,16 @@ def generate_html(font_name, font_code, symbols, css_path, categories=None, exam
   <script src="./action.js"></script>
 </head>
 <body>
+  <!-- 浮空模式切换按钮 -->
+  <div class="mode-switcher">
+    <div class="mode-switcher-title">模式切换</div>
+    <div class="mode-options">
+      <button class="mode-button active" data-mode="normal">普通</button>
+      <button class="mode-button" data-mode="shadow">阴影</button>
+      <button class="mode-button" data-mode="flat">扁平</button>
+    </div>
+  </div>
+
   <div class="container">
     <h1>{font_name} 符号展示</h1>
 
@@ -756,10 +777,7 @@ def generate_html(font_name, font_code, symbols, css_path, categories=None, exam
           <input type="range" id="fontSize" min="12" max="72" value="24">
           <span id="fontSizeDisplay">24px</span>
         </div>
-        <div class="shadow-control">
-          <label for="shadowToggle">阴影模式:</label>
-          <input type="checkbox" id="shadowToggle">
-        </div>
+        <!-- 模式切换已移到浮空按钮 -->
         <button id="clearButton" class="test-button">清空</button>
       </div>
       <div id="testOutput" class="test-output {font_code}-output"></div>

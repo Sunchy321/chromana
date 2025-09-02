@@ -35,7 +35,18 @@
   font-feature-settings: 'liga';
 }
 
+/* 不同模式的样式 */
+/* 普通模式（默认） */
+.normal {
+  font-feature-settings: 'liga';
+}
+
 /* 阴影模式 */
 .shadow {
   font-feature-settings: 'liga', 'ss01';
+}
+
+/* 扁平模式 */
+.flat {
+  font-feature-settings: 'liga', 'ss02';
 }
