@@ -413,7 +413,7 @@ def add_ligatures_to_font(font_file: Path, output_file: str, glyph_mappings: Gly
             base_name = f"uni{int(base_hex, 16):04X}"
             alt_names = [f"uni{int(h, 16):04X}" for h in alt_hexes]
             alt_list = ", ".join(alt_names)
-            fea_content.append(f"  sub {base_name} by [{alt_list}];")
+            fea_content.append(f"  sub {base_name} from [{alt_list}];")
 
         fea_content.append("} salt;")
         fea_content.append("")
