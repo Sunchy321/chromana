@@ -472,6 +472,8 @@ def add_ligatures_to_font(font_file: Path, output_file: str, glyph_mappings: Gly
             "onehalf": 0x00BD, "uni221E": 0x221E,
             "zero": 0x30, "one": 0x31, "two": 0x32, "three": 0x33, "four": 0x34,
             "five": 0x35, "six": 0x36, "seven": 0x37, "eight": 0x38, "nine": 0x39,
+            "bracketleft": 0x005B, "bracketright": 0x005D,
+            "plus": 0x002B, "hyphen": 0x002D,
             # Letters A–Z
             **{ chr(cp): cp for cp in range(0x41, 0x5B) }
         }
@@ -565,9 +567,7 @@ def convert_fonts(ttf_path):
     }
 
 # 生成CSS
-def generate_css(font_name, font_files, font_code):
-    print('@@file', font_files)
-
+def generate_css(font_name, font_files, font_code, version):
     css = f"""/* {font_name} Icon Font */
 @font-face {{
   font-family: '{font_name}';
@@ -621,7 +621,7 @@ def generate_css(font_name, font_files, font_code):
   font-feature-settings: 'liga', 'ss02';
 }}
 """
-    css_path = DEMO_DIR / f"{font_code}.css"
+    css_path = DEMO_DIR / f"{font_code}-{version}.css"
     with open(css_path, "w") as f:
         f.write(css)
 
@@ -987,6 +987,12 @@ def process_icon_set(icon_dir):
         print(f"  Removing old CSS file: {old_font}")
         old_font.unlink(missing_ok=True)
 
+    # 清空旧css
+    print(f"Cleaning old CSS files in {DEMO_DIR}...")
+    for old_css in DEMO_DIR.glob(f"{font_code}-*.css"):
+        print(f"  Removing old CSS file: {old_css}")
+        old_css.unlink(missing_ok=True)
+
     # 准备nanoemoji参数
     nanoemoji_params = prepare_nanoemoji_params(
         f"{font_name}-{version}",
@@ -1013,7 +1019,7 @@ def process_icon_set(icon_dir):
         font_files = convert_fonts(str(ttf_path))
 
         # 生成CSS
-        css_path = generate_css(font_name, font_files, font_code)
+        css_path = generate_css(font_name, font_files, font_code, version)
 
         # 生成示例HTML
         examples = config.get("example", [])
@@ -1141,7 +1147,7 @@ def merge_all_fonts(font_results):
             grouped_symbols[font_code].append(symbol)
 
         # 生成CSS
-        merged_css_path = generate_css(merged_font_name, merged_font_files, merged_font_code)
+        merged_css_path = generate_css(merged_font_name, merged_font_files, merged_font_code, '')
 
         # 生成示例HTML，按原始字体分组显示
         merged_html = f"""<!DOCTYPE html>

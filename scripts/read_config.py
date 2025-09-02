@@ -16,6 +16,7 @@ class Symbol(TypedDict):
     style: dict[str, str]
     add_shadow: bool
     add_flat: bool | list[str]
+    create_loyalty: bool
 
 class Category(TypedDict):
     name: str
@@ -60,6 +61,7 @@ def read_config(config_path: Path) -> Config:
         style = sym.get("style", {})
         add_shadow = sym.get("add-shadow", False)
         add_flat = sym.get("add-flat", False)
+        create_loyalty = sym.get("create-loyalty", False)
 
         if add_shadow:
             style["shadow"] = SHADOW_DIR
@@ -76,7 +78,8 @@ def read_config(config_path: Path) -> Config:
             variant=variant,
             style=style,
             add_shadow=add_shadow,
-            add_flat=add_flat
+            add_flat=add_flat,
+            create_loyalty=create_loyalty
         ))
 
     return Config(
