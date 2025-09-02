@@ -566,6 +566,8 @@ def convert_fonts(ttf_path):
 
 # 生成CSS
 def generate_css(font_name, font_files, font_code):
+    print('@@file', font_files)
+
     css = f"""/* {font_name} Icon Font */
 @font-face {{
   font-family: '{font_name}';
@@ -970,9 +972,24 @@ def process_icon_set(icon_dir):
     font_dist_dir = DIST_DIR / font_code
     font_dist_dir.mkdir(exist_ok=True)
 
+    # 清空旧字体文件
+    print(f"Cleaning old font files in {font_dist_dir}...")
+    for old_font in font_dist_dir.glob("*.ttf"):
+        print(f"  Removing old font file: {old_font}")
+        old_font.unlink(missing_ok=True)
+    for old_font in font_dist_dir.glob("*.woff"):
+        print(f"  Removing old font file: {old_font}")
+        old_font.unlink(missing_ok=True)
+    for old_font in font_dist_dir.glob("*.woff2"):
+        print(f"  Removing old font file: {old_font}")
+        old_font.unlink(missing_ok=True)
+    for old_font in font_dist_dir.glob("*.css"):
+        print(f"  Removing old CSS file: {old_font}")
+        old_font.unlink(missing_ok=True)
+
     # 准备nanoemoji参数
     nanoemoji_params = prepare_nanoemoji_params(
-        font_name,
+        f"{font_name}-{version}",
         icon_dir_path,
         font_dist_dir,
         symbols
@@ -989,7 +1006,7 @@ def process_icon_set(icon_dir):
         success = add_ligatures_to_font(font_file, nanoemoji_params["output_file"], glyph_mappings)
 
     # TTF路径
-    ttf_path = font_dist_dir / f"{font_name}.ttf"
+    ttf_path = font_dist_dir / f"{font_name}-{version}.ttf"
 
     # 转换为其他格式
     if success and ttf_path.exists():
@@ -1037,6 +1054,24 @@ def merge_all_fonts(font_results):
 
     all_symbols = []
     glyph_index = 0
+
+    # 清空合并字体目录中的旧字体文件
+    print(f"Cleaning old merged font files in {DIST_DIR}...")
+    for old_font in DIST_DIR.glob("chromana*.ttf"):
+        print(f"  Removing old merged font file: {old_font}")
+        old_font.unlink(missing_ok=True)
+    for old_font in DIST_DIR.glob("chromana*.woff"):
+        print(f"  Removing old merged font file: {old_font}")
+        old_font.unlink(missing_ok=True)
+    for old_font in DIST_DIR.glob("chromana*.woff2"):
+        print(f"  Removing old merged font file: {old_font}")
+        old_font.unlink(missing_ok=True)
+    for old_font in DIST_DIR.glob("chromana*.css"):
+        print(f"  Removing old merged CSS file: {old_font}")
+        old_font.unlink(missing_ok=True)
+    for old_font in DIST_DIR.glob("chromana*.html"):
+        print(f"  Removing old merged HTML file: {old_font}")
+        old_font.unlink(missing_ok=True)
 
     # 收集所有图标
     for font in font_results:
@@ -1331,7 +1366,7 @@ def main():
 
     # 清理临时文件
     print("Cleaning up temporary files...")
-    # shutil.rmtree(TEMP_DIR, ignore_errors=True)
+    shutil.rmtree(TEMP_DIR, ignore_errors=True)
 
     print("Build complete!")
 
