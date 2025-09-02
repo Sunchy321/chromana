@@ -29,6 +29,7 @@ dependencies = [
     "toml",
     "brotli",
     "svgutils",
+    "lxml",
 ]
 
 [project.urls]

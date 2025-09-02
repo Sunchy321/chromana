@@ -39,6 +39,7 @@ file="W.svg"
 ligature="{W}"
 category="normal-mana"
 add-shadow=true
+add-flat=true
 
 [[symbols]]
 name="blue"
@@ -46,6 +47,7 @@ file="U.svg"
 ligature="{U}"
 category="normal-mana"
 add-shadow=true
+add-flat=true
 
 [[symbols]]
 name="black"
@@ -53,6 +55,7 @@ file="B.svg"
 ligature="{B}"
 category="normal-mana"
 add-shadow=true
+add-flat=true
 
 [[symbols]]
 name="red"
@@ -60,6 +63,7 @@ file="R.svg"
 ligature="{R}"
 category="normal-mana"
 add-shadow=true
+add-flat=true
 
 [[symbols]]
 name="green"
@@ -67,6 +71,7 @@ file="G.svg"
 ligature="{G}"
 category="normal-mana"
 add-shadow=true
+add-flat=true
 
 [[symbols]]
 name="colorless"
@@ -74,6 +79,7 @@ file="C.svg"
 ligature="{C}"
 category="normal-mana"
 add-shadow=true
+add-flat=true
 
 # 数字法术力
 [[symbols]]

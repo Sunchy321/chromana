@@ -43,7 +43,7 @@ def main():
     symbols = config['symbols']
 
     for symbol in symbols:
-        if symbol.get('add_shadow', False):
+        if symbol['add_shadow']:
             file = symbol['file']
 
             input_path = os.path.join(BASE_PATH, "default", file)

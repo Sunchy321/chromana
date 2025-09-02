@@ -4,6 +4,7 @@ import toml
 from typing import TypedDict, List, Optional
 
 SHADOW_DIR = "shadow"
+FLAT_DIR = "flat"
 
 class Symbol(TypedDict):
     name: str
@@ -11,9 +12,10 @@ class Symbol(TypedDict):
     ligature: list[str]
     category: Optional[str]
     overflow: bool
-    add_shadow: bool
     variant: dict[str, str]
     style: dict[str, str]
+    add_shadow: bool
+    add_flat: bool
 
 class Category(TypedDict):
     name: str
@@ -54,12 +56,16 @@ def read_config(config_path: Path) -> Config:
 
         category = sym.get("category")
         overflow = sym.get("overflow", False)
-        add_shadow = sym.get("add-shadow", False)
         variant = sym.get("variant", {})
         style = sym.get("style", {})
+        add_shadow = sym.get("add-shadow", False)
+        add_flat = sym.get("add-flat", False)
 
         if add_shadow:
             style["shadow"] = SHADOW_DIR
+
+        if add_flat:
+            style["flat"] = FLAT_DIR
 
         symbols.append(Symbol(
             name=name,
@@ -67,9 +73,10 @@ def read_config(config_path: Path) -> Config:
             ligature=ligature,
             category=category,
             overflow=overflow,
-            add_shadow=add_shadow,
             variant=variant,
-            style=style
+            style=style,
+            add_shadow=add_shadow,
+            add_flat=add_flat
         ))
 
     return Config(
