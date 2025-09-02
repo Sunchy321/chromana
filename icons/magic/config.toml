@@ -1,6 +1,6 @@
 name = "Magic: The Gathering"
 code = "magic"
-version = "0.5.0"
+version = "0.6.0"
 
 [[example]]
 text = '<span class="magic-icon">{W}{U}{U}</span>, <span class="magic-icon">{T}</span>, Pay X <span class="magic-icon">{E}</span>: Draw X cards.'
@@ -458,6 +458,7 @@ file="WP.svg"
 ligature="{W/P}"
 category="phyrexian-mana"
 add-shadow=true
+add-flat=true
 
 [[symbols]]
 name="blue-phyrexian"
@@ -465,6 +466,7 @@ file="UP.svg"
 ligature="{U/P}"
 category="phyrexian-mana"
 add-shadow=true
+add-flat=true
 
 [[symbols]]
 name="black-phyrexian"
@@ -472,6 +474,7 @@ file="BP.svg"
 ligature="{B/P}"
 category="phyrexian-mana"
 add-shadow=true
+add-flat=true
 
 [[symbols]]
 name="red-phyrexian"
@@ -479,6 +482,7 @@ file="RP.svg"
 ligature="{R/P}"
 category="phyrexian-mana"
 add-shadow=true
+add-flat=true
 
 [[symbols]]
 name="green-phyrexian"
@@ -486,6 +490,7 @@ file="GP.svg"
 ligature="{G/P}"
 category="phyrexian-mana"
 add-shadow=true
+add-flat=true
 
 [[symbols]]
 name="colorless-phyrexian"
@@ -493,6 +498,7 @@ file="CP.svg"
 ligature="{C/P}"
 category="phyrexian-mana"
 add-shadow=true
+add-flat=true
 
 [[symbols]]
 name="white-blue-phyrexian"
@@ -570,6 +576,7 @@ name="tap"
 file="T.svg"
 ligature="{T}"
 category="other"
+add-flat=true
 
 [[symbols]]
 name="untap"
