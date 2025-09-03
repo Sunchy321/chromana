@@ -1,10 +1,40 @@
 name = "Lorcana"
 code = "lorcana"
-version = "0.1.0"
+version = "1.0.0"
 
 [[categories]]
 name = "default"
 display-name = "默认分类"
+
+[[symbols]]
+name = "strength"
+file = "strength.svg"
+ligature = "{S}"
+
+[[symbols]]
+name = "willpower"
+file = "willpower.svg"
+ligature = "{W}"
+
+[[symbols]]
+name = "lore"
+file = "lore.svg"
+ligature = "{L}"
+
+[[symbols]]
+name = "move-cost"
+file = "move-cost.svg"
+ligature = "{M}"
+
+[[symbols]]
+name = "ink"
+file = "ink.svg"
+ligature = "{I}"
+
+[[symbols]]
+name = "inkwell"
+file = "inkwell.svg"
+ligature = "{C}"
 
 [[symbols]]
 name = "exert"
