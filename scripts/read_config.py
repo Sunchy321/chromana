@@ -22,6 +22,10 @@ class Category(TypedDict):
     name: str
     display_name: str
 
+class Style(TypedDict):
+    name: str
+    display_name: str
+
 class Example(TypedDict):
     text: str
 
@@ -31,6 +35,7 @@ class Config(TypedDict):
     version: str
     example: Optional[List[Example]]
     categories: Optional[List[Category]]
+    styles: Optional[List[Style]]
     symbols: List[Symbol]
 
 def read_config(config_path: Path) -> Config:
@@ -42,7 +47,18 @@ def read_config(config_path: Path) -> Config:
     categories = raw.get("categories")
 
     if categories is not None:
-        categories = [Category(**cat) for cat in categories]
+        categories = [Category(
+            name=cat["name"],
+            display_name=cat.get("display-name", cat["name"])
+        ) for cat in categories]
+
+    styles = raw.get("styles")
+
+    if styles is not None:
+        styles = [Style(
+            name=style["name"],
+            display_name=style.get("display-name", style["name"])
+        ) for style in styles]
 
     symbols: list[Symbol] = []
 
@@ -55,7 +71,7 @@ def read_config(config_path: Path) -> Config:
         if isinstance(ligature, str):
             ligature = [ligature]
 
-        category = sym.get("category")
+        category = sym.get("category", "default")
         overflow = sym.get("overflow", False)
         variant = sym.get("variant", {})
         style = sym.get("style", {})
@@ -88,5 +104,6 @@ def read_config(config_path: Path) -> Config:
         version=raw["version"],
         example=example,
         categories=categories,
+        styles=styles,
         symbols=symbols
     )

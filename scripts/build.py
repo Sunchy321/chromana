@@ -9,8 +9,78 @@ import subprocess
 import glob
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
-from read_config import read_config, Symbol
+from read_config import Style, read_config, Symbol
 from typing import Dict, List, Tuple, Optional, TypedDict
+
+# ANSI Color Code
+class Colors:
+    RESET = '\033[0m'
+    BOLD = '\033[1m'
+    DIM = '\033[2m'
+
+    # 前景色
+    BLACK = '\033[30m'
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE = '\033[34m'
+    MAGENTA = '\033[35m'
+    CYAN = '\033[36m'
+    WHITE = '\033[37m'
+
+    # 亮色版本
+    BRIGHT_RED = '\033[91m'
+    BRIGHT_GREEN = '\033[92m'
+    BRIGHT_YELLOW = '\033[93m'
+    BRIGHT_BLUE = '\033[94m'
+    BRIGHT_MAGENTA = '\033[95m'
+    BRIGHT_CYAN = '\033[96m'
+    BRIGHT_WHITE = '\033[97m'
+
+# Symbols
+class Symbols:
+    SUCCESS = "✅"
+    ERROR = "❌"
+    WARNING = "⚠️"
+    INFO = "ℹ️"
+    BUILDING = "🔧"
+    CLEANING = "🧹"
+    FOUND = "📁"
+    GENERATED = "📝"
+    ARROW = "➤"
+    BULLET = "•"
+    CHECK = "✓"
+    CROSS = "✗"
+
+def print_colored(message, color=Colors.RESET, symbol="", bold=False):
+    """Print colored message with symbol"""
+    style = Colors.BOLD if bold else ""
+    symbol_part = f"{symbol} " if symbol else ""
+    print(f"{color}{style}{symbol_part}{message}{Colors.RESET}")
+
+def print_success(message, symbol=Symbols.SUCCESS):
+    """Print success message"""
+    print_colored(message, Colors.BRIGHT_GREEN, symbol, bold=True)
+
+def print_error(message, symbol=Symbols.ERROR):
+    """Print error message"""
+    print_colored(message, Colors.BRIGHT_RED, symbol, bold=True)
+
+def print_warning(message, symbol=Symbols.WARNING):
+    """Print warning message"""
+    print_colored(message, Colors.BRIGHT_YELLOW, symbol, bold=True)
+
+def print_info(message, symbol=Symbols.INFO):
+    """Print info message"""
+    print_colored(message, Colors.BRIGHT_BLUE, symbol)
+
+def print_building(message, symbol=Symbols.BUILDING):
+    """Print building message"""
+    print_colored(message, Colors.BRIGHT_CYAN, symbol, bold=True)
+
+def print_step(message, symbol=Symbols.ARROW):
+    """Print step message"""
+    print_colored(message, Colors.BRIGHT_MAGENTA, symbol, bold=True)
 
 # 项目根目录
 PROJECT_ROOT = Path(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -24,29 +94,34 @@ BUILD_DIR = PROJECT_ROOT / "build"
 DIST_DIR.mkdir(exist_ok=True)
 TEMP_DIR.mkdir(exist_ok=True)
 
-# 检查nanoemoji是否安装
+# Check if nanoemoji is installed
 def check_dependencies():
+    print_info("Checking dependencies...", Symbols.INFO)
+
     try:
         subprocess.run(["nanoemoji", "--help"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print_success("nanoemoji is installed", Symbols.CHECK)
     except FileNotFoundError:
-        print("nanoemoji not found. Installing...")
+        print_warning("nanoemoji not found, installing...", Symbols.WARNING)
         subprocess.run([sys.executable, "-m", "pip", "install", "nanoemoji"], check=True)
+        print_success("nanoemoji installation complete", Symbols.SUCCESS)
 
-    # 检查字体转换工具
+    # Check font conversion tools
     try:
         import fontTools
-        print(f"fontTools {fontTools.__version__} found.")
+        print_success(f"fontTools {fontTools.__version__} found", Symbols.CHECK)
     except ImportError:
-        print("fonttools not found. Installing...")
+        print_warning("fonttools not found, installing...", Symbols.WARNING)
         subprocess.run([sys.executable, "-m", "pip", "install", "fonttools"], check=True)
+        print_success("fonttools installation complete", Symbols.SUCCESS)
 
-    # 检查是否支持WOFF2
+    # Check WOFF2 support
     try:
         import brotli
-        print("brotli found, WOFF2 conversion will be available.")
+        print_success("brotli found, WOFF2 conversion available", Symbols.CHECK)
     except ImportError:
-        print("brotli not found. WOFF2 conversion may not be available.")
-        print("To enable WOFF2 support, install brotli: pip install brotli")
+        print_warning("brotli not found, WOFF2 conversion may not be available", Symbols.WARNING)
+        print_info("To enable WOFF2 support, install brotli: pip install brotli", Symbols.INFO)
 
 class SingleSymbol(TypedDict):
     name: str
@@ -127,48 +202,48 @@ def build_nanoemoji_font(params: NanoEmojiParams) -> tuple[Optional[Path], Optio
     symbols = params["symbols"]
 
     if not symbols:
-        print(f"Error: No valid symbols found for {font_name}")
+        print_error(f"No valid symbols found for {font_name}")
         return None, None
 
-    print(f"Building font {font_name} with {len(symbols)} icons")
+    print_building(f"Building font {font_name} with {len(symbols)} icons")
 
-    # 创建临时目录，用于存放重命名的SVG文件
+    # Create temporary directory for renamed SVG files
     temp_svg_dir = TEMP_DIR / "svgs"
     temp_svg_dir.mkdir(exist_ok=True)
 
-    # 用于存放临时SVG文件路径
+    # Store temporary SVG file paths
     temp_svgs = []
-    # 用于存储码点与字形名称的映射
+    # Store mapping between codepoints and glyph names
     glyph_mappings: GlyphMapping = {}
 
-    # 为每个SVG创建一个临时副本，文件名格式符合nanoemoji的要求
+    # Create a temporary copy for each SVG with filename format expected by nanoemoji
     for i, sym in enumerate(symbols):
         svg = sym["path"]
 
-        # 使用私有区域码点 (Private Use Area)
+        # Use Private Use Area codepoints
         codepoint = 0xE000 + i
         hex_codepoint = f"{codepoint:04x}"
 
-        # 创建符合nanoemoji预期的文件名格式: emoji_uXXXX.svg
+        # Create filename format expected by nanoemoji: emoji_uXXXX.svg
         temp_filename = f"emoji_u{hex_codepoint}.svg"
         temp_svg_path = temp_svg_dir / temp_filename
 
-        # 预处理SVG文件并复制到临时位置
+        # Preprocess SVG file and copy to temporary location
         preprocess_svg(svg, temp_svg_path)
         temp_svgs.append(str(temp_svg_path))
 
-        # 存储码点与字形名称的映射
+        # Store mapping between codepoint and glyph name
         glyph_mappings[hex_codepoint] = sym
 
-    print(f"Created {len(temp_svgs)} temporary SVG files with Unicode codepoints")
+    print_success(f"Created {len(temp_svgs)} temporary SVG files using Unicode codepoints")
 
-    # 创建一个临时的配置文件
+    # Create a temporary configuration file
     build_dir = BUILD_DIR
 
-    # nanoemoji默认输出为build/Font.ttf，我们将记录这个路径
+    # nanoemoji outputs to build/Font.ttf by default, we'll record this path
     default_output = build_dir / "Font.ttf"
 
-    # 构建命令行 - 第一阶段：创建基本字体，不包含连字功能
+    # Build command line - Phase 1: Create basic font without ligature functionality
     cmd_basic = [
         "nanoemoji",
         "--family", font_name,
@@ -181,28 +256,28 @@ def build_nanoemoji_font(params: NanoEmojiParams) -> tuple[Optional[Path], Optio
         *temp_svgs
     ]
 
-    # 执行命令创建基本字体
-    print(f"Step 1: Executing nanoemoji to create basic font:")
-    print(f"{' '.join(cmd_basic[:6])}... (and {len(temp_svgs)} SVG files)")
+    # Execute command to create basic font
+    print_step("Executing nanoemoji to create basic font")
+    print_info(f"{' '.join(cmd_basic[:6])}... (plus {len(temp_svgs)} SVG files)")
 
     try:
         subprocess.run(cmd_basic, check=True)
     except subprocess.CalledProcessError as e:
-        print(f"Error running nanoemoji for basic font: {e}")
+        print_error(f"Error running nanoemoji to create basic font: {e}")
         try:
             result = subprocess.run(cmd_basic, capture_output=True, text=True)
-            print(f"Standard output: {result.stdout[:500]}..." if len(result.stdout) > 500 else result.stdout)
-            print(f"Standard error: {result.stderr[:500]}..." if len(result.stderr) > 500 else result.stderr)
+            print_error(f"Stdout: {result.stdout[:500]}..." if len(result.stdout) > 500 else result.stdout)
+            print_error(f"Stderr: {result.stderr[:500]}..." if len(result.stderr) > 500 else result.stderr)
         except Exception as e2:
-            print(f"Error capturing output: {e2}")
+            print_error(f"Error capturing output: {e2}")
         return None, None
 
-    # 检查基本字体是否创建成功
+    # Check if basic font was created successfully
     if not os.path.exists(default_output):
-        print(f"Error: Basic font file not created at expected location: {default_output}")
+        print_error(f"Basic font file not created at expected location: {default_output}")
         return None, None
 
-    print(f"Successfully created basic font: {default_output}")
+    print_success(f"Successfully created basic font: {default_output}")
 
     return default_output, glyph_mappings
 
@@ -298,7 +373,7 @@ def liga_to_string(ligature: str, glyph_name: str) -> Optional[str]:
 
     # 检查是否有成功处理的字符
     if not processed_chars:
-        print(f"Warning: No valid characters in ligature for {glyph_name}")
+        print_warning(f"No valid characters in ligature for {glyph_name}", Symbols.WARNING)
         return None
 
     # 创建FEA规则字符串，字符之间用空格分隔
@@ -306,11 +381,11 @@ def liga_to_string(ligature: str, glyph_name: str) -> Optional[str]:
 
     return liga_string
 
-# 为字体添加连字功能
+# Add ligature functionality to font
 def add_ligatures_to_font(font_file: Path, output_file: str, glyph_mappings: GlyphMapping):
-    print(f"Adding ligatures to font: {font_file}")
+    print_step(f"Adding ligature functionality to font: {font_file}")
 
-    # 步骤1：创建连字规则列表
+    # Step 1: Create ligature rules list
     variants: list[str] = []
     styles: list[str] = []
 
@@ -318,7 +393,7 @@ def add_ligatures_to_font(font_file: Path, output_file: str, glyph_mappings: Gly
     salt_list: list[tuple[str, list[str]]] = []
     ss0x_lists: list[list[tuple[str, str]]] = []
 
-    # 为每个连字添加替换规则
+    # Add replacement rules for each ligature
     added_rules = 0
     skipped_rules = 0
 
@@ -368,7 +443,7 @@ def add_ligatures_to_font(font_file: Path, output_file: str, glyph_mappings: Gly
                 added_rules += 1
 
             except Exception as e:
-                print(f"Error processing ligature for {glyph_name}: {e}")
+                print_error(f"Error processing ligature for {glyph_name}: {e}")
                 skipped_rules += 1
 
         if len(default_variant_dict) > 1:
@@ -390,7 +465,7 @@ def add_ligatures_to_font(font_file: Path, output_file: str, glyph_mappings: Gly
 
                 ss0x_list.append((original_hex, f"uni{int(hex_codepoint, 16):04X}"))
 
-    # 步骤2：创建FEA文件以支持连字功能
+    # Step 2: Create FEA file to support ligature functionality
     fea_file = TEMP_DIR / f"{os.path.basename(output_file)}.fea"
 
     fea_content = [
@@ -431,40 +506,40 @@ def add_ligatures_to_font(font_file: Path, output_file: str, glyph_mappings: Gly
         fea_content.append(f"}} ss0{i+1};")
         fea_content.append("")
 
-    # 写入FEA文件
+    # Write FEA file
     with open(fea_file, "w") as f:
         f.write("\n".join(fea_content))
 
-    print(f"Created feature file: {fea_file}")
+    print_success(f"Created feature file: {fea_file}")
 
-    # 步骤3：使用FontTools添加连字功能
+    # Step 3: Use FontTools to add ligature functionality
     try:
         from fontTools.ttLib import TTFont
         from fontTools.feaLib.builder import addOpenTypeFeatures
         import re
 
-        # 读取基本字体
-        print(f"Step 2: Adding ligature features to the font")
+        # Read basic font
+        print_info("Adding ligature features to font...")
         font = TTFont(font_file)
 
-        # 获取字体中所有可用的字形名称
+        # Get all available glyph names in font
         available_glyphs = set(font.getGlyphOrder())
-        print(f"Font contains {len(available_glyphs)} glyphs")
+        print_info(f"Font contains {len(available_glyphs)} glyphs")
 
-        # 使用TTX临时导出字体，用于后面添加缺失字形
+        # Use TTX to temporarily export font for adding missing glyphs later
         ttx_temp_file = str(TEMP_DIR / "temp_font.ttx")
-        print(f"Exporting font to TTX format: {ttx_temp_file}")
+        print_info(f"Exporting font to TTX format: {ttx_temp_file}")
         font.saveXML(ttx_temp_file)
 
-        # 检查并修复FEA文件，找出所有需要添加的缺失字形
+        # Check and fix FEA file, find all missing glyphs that need to be added
         with open(fea_file, "r") as f:
             fea_content = f.read()
 
-        # 使用正则表达式找出所有引用的字形名称
+        # Use regex to find all referenced glyph names
         pattern = r'sub (.*?) by ([^;]+);'
         matches = re.findall(pattern, fea_content)
 
-        # 收集所有需要添加的字形
+        # Collect all glyphs that need to be added
         missing_glyphs = set()
 
         INPUT_GLYPHS = {
@@ -501,29 +576,29 @@ def add_ligatures_to_font(font_file: Path, output_file: str, glyph_mappings: Gly
 
         add_mapping_to_unicode_cmaps(font, {cp: name for name, cp in INPUT_GLYPHS.items()})
 
-        # 所有字形都应该已经存在，直接使用原始FEA文件
-        print(f"Total rules found in original FEA file: {len(matches)}")
+        # All glyphs should already exist, directly use original FEA file
+        print_info(f"Found {len(matches)} rules in original FEA file")
 
-        # 添加OpenType特性，使用原始FEA文件
-        print(f"Adding OpenType features from {fea_file}")
+        # Add OpenType features using original FEA file
+        print_info(f"Adding OpenType features from {fea_file}")
         addOpenTypeFeatures(font, str(fea_file), tables=["GSUB"])
 
-        # 保存带有连字功能的字体
+        # Save font with ligature functionality
         font_path = Path(font_file)
         enhanced_output = font_path.with_name(f"{os.path.basename(output_file)}")
         font.save(enhanced_output)
-        print(f"Saved enhanced font with ligatures to: {enhanced_output}")
+        print_success(f"Saved enhanced font (with ligatures) to: {enhanced_output}")
 
-        # 确保输出目录存在
+        # Ensure output directory exists
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
-        # 复制到指定输出位置
+        # Copy to specified output location
         shutil.copy2(enhanced_output, output_file)
-        print(f"Copied font to final location: {output_file}")
+        print_success(f"Copied font to final location: {output_file}")
 
         return True
     except Exception as e:
-        print(f"Error adding ligature features: {e}")
+        print_error(f"Error adding ligature features: {e}")
         return False
 
 def convert_fonts(ttf_path):
@@ -533,31 +608,33 @@ def convert_fonts(ttf_path):
     woff_path = f"{base_path}.woff"
     woff2_path = f"{base_path}.woff2"
 
-    print(f"Converting {ttf_path} to WOFF and WOFF2 formats...")
+    print_info(f"Converting {ttf_path} to WOFF and WOFF2 formats...")
 
-    # 加载TTF字体
+    # Load TTF font
     try:
         font = TTFont(ttf_path)
 
-        # 保存为WOFF
-        print(f"Saving WOFF format to {woff_path}")
+        # Save as WOFF
+        print_info(f"Saving WOFF format to {woff_path}")
         font.flavor = "woff"
         font.save(woff_path)
+        print_success("WOFF format saved successfully", Symbols.CHECK)
 
-        # 尝试保存为WOFF2
+        # Try to save as WOFF2
         try:
-            print(f"Saving WOFF2 format to {woff2_path}")
+            print_info(f"Saving WOFF2 format to {woff2_path}")
             font.flavor = "woff2"
             font.save(woff2_path)
+            print_success("WOFF2 format saved successfully", Symbols.CHECK)
             has_woff2 = True
         except Exception as e:
-            print(f"Error saving to WOFF2 format: {e}")
-            print("This may happen if the woff2 Python module is not installed.")
-            print("You can install it with: pip install brotli")
+            print_warning(f"Error saving WOFF2 format: {e}")
+            print_info("This may be because the woff2 Python module is not installed")
+            print_info("You can install it with: pip install brotli")
             has_woff2 = False
 
     except Exception as e:
-        print(f"Error converting font: {e}")
+        print_error(f"Font conversion error: {e}")
         return {"ttf": ttf_path, "woff": None, "woff2": None}
 
     return {
@@ -566,7 +643,7 @@ def convert_fonts(ttf_path):
         "woff2": woff2_path if has_woff2 else None
     }
 
-# 生成CSS
+# Generate CSS
 def generate_css(font_name, font_files, font_code, version):
     css = f"""/* {font_name} Icon Font */
 @font-face {{
@@ -579,7 +656,7 @@ def generate_css(font_name, font_files, font_code, version):
 }}
 
 .{font_code}-output {{
-  font-family: 'Chromana-magic';
+  font-family: 'Chromana-{font_code}';
   word-break: break-word;
 }}
 
@@ -605,18 +682,18 @@ def generate_css(font_name, font_files, font_code, version):
   font-feature-settings: 'liga';
 }}
 
-/* 不同模式的样式 */
-/* 普通模式（默认） */
+/* Different mode styles */
+/* Normal mode (default) */
 .normal {{
   font-feature-settings: 'liga';
 }}
 
-/* 阴影模式 */
+/* Shadow mode */
 .shadow {{
   font-feature-settings: 'liga', 'ss01';
 }}
 
-/* 扁平模式 */
+/* Flat mode */
 .flat {{
   font-feature-settings: 'liga', 'ss02';
 }}
@@ -627,11 +704,14 @@ def generate_css(font_name, font_files, font_code, version):
 
     return css_path
 
-# 生成示例HTML
-def generate_html(font_name, font_code, symbols, css_path, categories=None, examples=None):
-    # 创建分类名称映射，用于显示友好的分类名称
+# Generate example HTML
+def generate_html(
+    font_name, font_code, symbols: List[Symbol], css_path,
+    categories=None, styles: Optional[List[Style]]=None, examples=None
+):
+    # Create category name mapping for friendly display names
     category_display_names = {}
-    category_order = []  # 用于保持分类的顺序
+    category_order = []  # Used to maintain category order
     if categories:
         for category in categories:
             category_name = category.get("name", "")
@@ -640,7 +720,7 @@ def generate_html(font_name, font_code, symbols, css_path, categories=None, exam
                 category_display_names[category_name] = display_name
                 category_order.append(category_name)
 
-    # 分类符号，便于后续按类别展示
+    # Categorize symbols for display by category
     categorized_symbols = {}
     for symbol in symbols:
         name = symbol["name"]
@@ -657,23 +737,23 @@ def generate_html(font_name, font_code, symbols, css_path, categories=None, exam
             "overflow": overflow
         })
 
-    # 生成各类别的HTML
+    # Generate HTML for various categories
     category_sections = ""
 
-    # 处理所有分类
+    # Process all categories
     all_categories = []
 
-    # 首先添加配置中指定顺序的分类
+    # First add categories in configuration order
     for category in category_order:
         if category in categorized_symbols:
             all_categories.append(category)
 
-    # 然后添加其他没有在配置中指定的分类
+    # Then add other categories not specified in configuration
     for category in categorized_symbols.keys():
         if category not in all_categories:
             all_categories.append(category)
 
-    # 根据分类顺序生成HTML
+    # Generate HTML based on category order
     for category in all_categories:
         category_symbols = categorized_symbols[category]
         symbols_html = ""
@@ -682,18 +762,18 @@ def generate_html(font_name, font_code, symbols, css_path, categories=None, exam
             name = symbol["name"]
             ligature = symbol["ligature"]
 
-            # 处理多个连字的情况
+            # Handle multiple ligatures
             if isinstance(ligature, list):
-                primary_ligature = ligature[0]  # 使用第一个连字作为主显示
-                all_ligatures = ", ".join(ligature)  # 所有连字用逗号分隔显示
+                primary_ligature = ligature[0]  # Use first ligature as primary display
+                all_ligatures = ", ".join(ligature)  # Show all ligatures separated by commas
             else:
                 primary_ligature = ligature
                 all_ligatures = ligature
 
-            # 检查是否为宽字符（如1000000等）
+            # Check for wide characters (like 1000000, etc.)
             wide_char_class = ""
 
-            if symbol["overflow"]:  # 根据名称或字符长度判断
+            if symbol["overflow"]:  # Judge by name or character length
                 wide_char_class = " wide-icon"
 
             symbols_html += f"""
@@ -701,7 +781,9 @@ def generate_html(font_name, font_code, symbols, css_path, categories=None, exam
           <i class="{font_code}-icon icon-display">{primary_ligature}</i>
           <div class="icon-name">{name}</div>
           <div class="icon-code">{all_ligatures}</div>
-        </div>"""        # 使用配置中的显示名称，或者格式化为标题格式
+        </div>"""
+
+        # Use display name from configuration, or format as title
         category_title = category_display_names.get(
             category,
             category.replace('_', ' ').replace('-', ' ').title()
@@ -715,17 +797,17 @@ def generate_html(font_name, font_code, symbols, css_path, categories=None, exam
         </div>
       </div>"""
 
-    # 如果没有分类，则直接显示所有符号
+    # If no categories, display all symbols directly
     if not categorized_symbols:
         symbols_html = ""
         for symbol in symbols:
             name = symbol["name"]
             ligature = symbol["ligature"]
 
-            # 处理多个连字的情况
+            # Handle multiple ligatures
             if isinstance(ligature, list):
-                primary_ligature = ligature[0]  # 使用第一个连字作为主显示
-                all_ligatures = ", ".join(ligature)  # 所有连字用逗号分隔显示
+                primary_ligature = ligature[0]  # Use first ligature as primary display
+                all_ligatures = ", ".join(ligature)  # Show all ligatures separated by commas
             else:
                 primary_ligature = ligature
                 all_ligatures = ligature
@@ -739,21 +821,38 @@ def generate_html(font_name, font_code, symbols, css_path, categories=None, exam
 
         category_sections = f"""
       <div class="symbol-category">
-        <h3 class="category-title">所有符号</h3>
+        <h3 class="category-title">All Symbols</h3>
         <div class="icons-grid">
           {symbols_html}
         </div>
       </div>"""
+
+    styles_html = ""
+
+    if styles and len(styles) > 0:
+        for style in styles:
+            styles_html += f"<button class='mode-button' data-mode='{style.get('name')}'>{style.get('display_name', style.get('name'))}</button>\n"
+
+    examples_html = generate_examples_html(font_code, examples)
+
+    if examples_html is None:
+        example_full_html = ''
+    else:
+        example_full_html = f"""
+            <h3>文本示例</h3>
+            <div class="text-examples">{examples_html}
+            </div>
+        """
 
     html = f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{font_name} 符号展示</title>
+  <title>{font_name}</title>
   <link rel="stylesheet" href="./style.css">
   <link rel="stylesheet" href="./{os.path.basename(css_path)}">
-  <script src="./action.js"></script>
+  <script src="./{font_code}-action.js"></script>
 </head>
 <body>
   <!-- 浮空模式切换按钮 -->
@@ -761,8 +860,7 @@ def generate_html(font_name, font_code, symbols, css_path, categories=None, exam
     <div class="mode-switcher-title">模式切换</div>
     <div class="mode-options">
       <button class="mode-button active" data-mode="normal">普通</button>
-      <button class="mode-button" data-mode="shadow">阴影</button>
-      <button class="mode-button" data-mode="flat">扁平</button>
+      {styles_html}
     </div>
   </div>
 
@@ -779,7 +877,6 @@ def generate_html(font_name, font_code, symbols, css_path, categories=None, exam
           <input type="range" id="fontSize" min="12" max="72" value="24">
           <span id="fontSizeDisplay">24px</span>
         </div>
-        <!-- 模式切换已移到浮空按钮 -->
         <button id="clearButton" class="test-button">清空</button>
       </div>
       <div id="testOutput" class="test-output {font_code}-output"></div>
@@ -813,10 +910,7 @@ def generate_html(font_name, font_code, symbols, css_path, categories=None, exam
 }}</code></pre>
         </div>
 
-        <h3>文本示例</h3>
-        <div class="text-examples">
-          {generate_examples_html(font_code, examples)}
-        </div>
+       {example_full_html}
       </div>
     </section>
 
@@ -837,53 +931,31 @@ def generate_html(font_name, font_code, symbols, css_path, categories=None, exam
 
 def generate_examples_html(font_code, examples=None):
     """
-    根据配置文件中的示例生成HTML代码，优化长文本的显示
+    Generate HTML code based on examples from configuration file, optimized for long text display
     """
     if not examples or len(examples) == 0:
-        # 如果没有配置示例，则使用默认示例
-        return f"""
-          <div class="example-text-container">
-            <div class="example-text-content">
-              <div style="font-size: 18px; line-height: 1.6;">
-                这是一个长文本示例，展示如何使用字体显示大段文字。这种布局更适合阅读大段文本内容，
-                可以更清晰地看到字体在实际使用场景中的效果。段落中的连字符会自动转换为相应的图标，
-                例如可以在文本中插入图标代码，使文本内容更加丰富多样。
-              </div>
-            </div>
-            <div class="example-desc">普通文本示例</div>
-          </div>
+        # If no configured examples, use default examples
+        return None
 
-          <div class="example-text-container">
-            <div class="example-text-content">
-              <div class="shadow" style="font-size: 18px; line-height: 1.6;">
-                这是带阴影效果的文本示例，可以看到字体的阴影效果。在一些需要强调的场景下，
-                使用阴影效果可以让图标更加醒目。同样，这里也可以插入各种图标代码，
-                使得内容更加丰富多彩，提升视觉体验。
-              </div>
-            </div>
-            <div class="example-desc">带阴影效果的文本示例</div>
-          </div>
-        """
-
-    # 使用配置中的示例
+    # Use examples from configuration
     examples_html = ""
     for i, example in enumerate(examples):
         text = example.get("text", "这是一个示例文本")
         desc = example.get("desc", f"示例 {i+1}")
 
-        # 处理可选的样式属性
+        # Handle optional style attributes
         font_size = example.get("font_size", "14px")
         line_height = example.get("line_height", "1.6")
         color = example.get("color", "")
         is_shadow = example.get("shadow", False)
         width = example.get("width", "100%")
 
-        # 构建样式字符串
+        # Build style string
         style = f'font-size: {font_size}; line-height: {line_height};'
         if color:
             style += f' color: {color};'
 
-        # 处理阴影模式
+        # Handle shadow mode
         shadow_class = " shadow" if is_shadow else ""
 
         examples_html += f"""
@@ -899,23 +971,23 @@ def generate_examples_html(font_code, examples=None):
 
     return examples_html
 
-# 预处理SVG文件，修复ID重复等问题
+# Preprocess SVG files, fix duplicate IDs and other issues
 def preprocess_svg(svg_path, temp_svg_path):
     """
-    预处理SVG文件，修复一些常见问题：
-    1. 重复的元素ID
-    2. 不兼容的元素
+    Preprocess SVG files, fix common issues:
+    1. Duplicate element IDs
+    2. Incompatible elements
     """
     import re
     from xml.dom import minidom
 
     try:
-        # 使用minidom解析SVG文件
+        # Parse SVG file using minidom
         dom = minidom.parse(svg_path)
 
-        # 获取所有带有id属性的元素
+        # Get all elements with id attributes
         elements_with_ids = {}
-        # 遍历所有可能有id属性的元素类型
+        # Traverse all possible element types that might have id attributes
         for elem_type in ['path', 'g', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon']:
             for elem in dom.getElementsByTagName(elem_type):
                 if elem.hasAttribute('id'):
@@ -924,76 +996,77 @@ def preprocess_svg(svg_path, temp_svg_path):
                         elements_with_ids[elem_id] = []
                     elements_with_ids[elem_id].append(elem)
 
-        # 修复重复ID问题
+        # Fix duplicate ID issues
         for elem_id, elems in elements_with_ids.items():
             if len(elems) > 1:
                 for i, elem in enumerate(elems[1:], 1):
                     new_id = f"{elem_id}_{i}"
                     elem.setAttribute('id', new_id)
 
-        # 写入修改后的SVG
+        # Write modified SVG
         with open(temp_svg_path, 'w', encoding='utf-8') as f:
-            # 使用xml.dom.minidom生成的字符串包含XML声明，我们需要手动添加SVG DOCTYPE
+            # String generated by xml.dom.minidom includes XML declaration, we need to manually add SVG DOCTYPE
             svg_content = dom.toxml()
-            # 如果需要添加DOCTYPE（可选）
+            # Add DOCTYPE if needed (optional)
             svg_content = svg_content.replace('<?xml version="1.0" ?>',
                                              '<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">')
             f.write(svg_content)
 
         return True
     except Exception as e:
-        print(f"Error preprocessing SVG {svg_path}: {e}")
-        # 如果出错，直接复制原文件
+        print_error(f"Error preprocessing SVG file {svg_path}: {e}")
+        # If error occurs, directly copy original file
         shutil.copy2(svg_path, temp_svg_path)
         return False
 
-# 处理单个图标集
+# Process individual icon set
 def process_icon_set(icon_dir):
     icon_dir_path = Path(icon_dir)
     config_path = icon_dir_path / "config.toml"
 
     if not config_path.exists():
-        print(f"No config.toml found in {icon_dir_path}, skipping...")
+        print_warning(f"config.toml not found in {icon_dir_path}, skipping...")
         return None
 
-    print(f"Processing icon set: {icon_dir_path.name}")
+    print_building(f"Processing icon set: {icon_dir_path.name}", Symbols.BUILDING)
 
-    # 读取配置
+    # Read configuration
     config = read_config(config_path)
     font_name = f'Chromana-{config["code"]}'
     font_code = config["code"]
     version = config["version"]
     symbols = config["symbols"]
-    categories = config.get("categories", [])
+    categories = config.get("categories")
+    styles = config.get("styles")
 
-    print(f"Found {len(symbols)} symbols in {font_name}")
+    print_info(f"Found {len(symbols)} symbols in {font_name}")
 
-    # 创建输出目录
+    # Create output directory
     font_dist_dir = DIST_DIR / font_code
     font_dist_dir.mkdir(exist_ok=True)
 
-    # 清空旧字体文件
-    print(f"Cleaning old font files in {font_dist_dir}...")
+    # Clean up old font files
+    print_info(f"Cleaning old font files in {font_dist_dir}...", Symbols.CLEANING)
     for old_font in font_dist_dir.glob("*.ttf"):
-        print(f"  Removing old font file: {old_font}")
+        print_colored(f"  Removing old font file: {old_font.name}", Colors.DIM, Symbols.BULLET)
         old_font.unlink(missing_ok=True)
     for old_font in font_dist_dir.glob("*.woff"):
-        print(f"  Removing old font file: {old_font}")
+        print_colored(f"  Removing old font file: {old_font.name}", Colors.DIM, Symbols.BULLET)
         old_font.unlink(missing_ok=True)
     for old_font in font_dist_dir.glob("*.woff2"):
-        print(f"  Removing old font file: {old_font}")
+        print_colored(f"  Removing old font file: {old_font.name}", Colors.DIM, Symbols.BULLET)
         old_font.unlink(missing_ok=True)
     for old_font in font_dist_dir.glob("*.css"):
-        print(f"  Removing old CSS file: {old_font}")
+        print_colored(f"  Removing old CSS file: {old_font.name}", Colors.DIM, Symbols.BULLET)
         old_font.unlink(missing_ok=True)
 
-    # 清空旧css
-    print(f"Cleaning old CSS files in {DEMO_DIR}...")
+    # Clean up old CSS files
+    print_info(f"Cleaning old CSS files in {DEMO_DIR}...", Symbols.CLEANING)
     for old_css in DEMO_DIR.glob(f"{font_code}-*.css"):
-        print(f"  Removing old CSS file: {old_css}")
+        print_colored(f"  Removing old CSS file: {old_css.name}", Colors.DIM, Symbols.BULLET)
         old_css.unlink(missing_ok=True)
 
-    # 准备nanoemoji参数
+    # Prepare nanoemoji parameters
     nanoemoji_params = prepare_nanoemoji_params(
         f"{font_name}-{version}",
         icon_dir_path,
@@ -1001,36 +1074,36 @@ def process_icon_set(icon_dir):
         symbols
     )
 
-    # 生成TTF - 内联替代build_font_with_nanoemoji的调用
-    # 第一步：生成基本字体
+    # Generate TTF - inline replacement for build_font_with_nanoemoji call
+    # Step 1: Generate basic font
     font_file, glyph_mappings = build_nanoemoji_font(nanoemoji_params)
 
     success = False
 
     if font_file is not None and glyph_mappings is not None:
-        # 第二步：添加连字功能
+        # Step 2: Add ligature functionality
         success = add_ligatures_to_font(font_file, nanoemoji_params["output_file"], glyph_mappings)
 
-    # TTF路径
+    # TTF path
     ttf_path = font_dist_dir / f"{font_name}-{version}.ttf"
 
-    # 转换为其他格式
+    # Convert to other formats
     if success and ttf_path.exists():
         font_files = convert_fonts(str(ttf_path))
 
-        # 生成CSS
+        # Generate CSS
         css_path = generate_css(font_name, font_files, font_code, version)
 
-        # 生成示例HTML
+        # Generate example HTML
         examples = config.get("example", [])
-        html_path = generate_html(font_name, font_code, symbols, css_path, categories, examples)
+        html_path = generate_html(font_name, font_code, symbols, css_path, categories, styles, examples)
 
-        print(f"Generated font files for {font_name}:")
+        print_success(f"Generated font files for {font_name}:", Symbols.GENERATED)
         for fmt, path in font_files.items():
             if path:
-                print(f"  - {fmt}: {path}")
-        print(f"  - CSS: {css_path}")
-        print(f"  - HTML demo: {html_path}")
+                print_colored(f"  - {fmt.upper()}: {Path(path).name}", Colors.BRIGHT_GREEN, Symbols.CHECK)
+        print_colored(f"  - CSS: {css_path.name}", Colors.BRIGHT_GREEN, Symbols.CHECK)
+        print_colored(f"  - HTML demo: {html_path.name}", Colors.BRIGHT_GREEN, Symbols.CHECK)
 
         return {
             "name": font_name,
@@ -1043,37 +1116,39 @@ def process_icon_set(icon_dir):
             "categories": categories
         }
     else:
-        print(f"Error: Failed to generate TTF font for {font_name}")
+        print_error(f"Failed to generate TTF font for {font_name}")
         return None
 
 def main():
-    # 检查依赖
+    # Check dependencies
+    print_step("Starting Chromana font build", Symbols.BUILDING)
     check_dependencies()
 
-    # 查找图标目录
+    # Find icon directories
     icon_dirs = [d for d in ICONS_DIR.iterdir() if d.is_dir() and (d / "config.toml").exists()]
 
     if not icon_dirs:
-        print("No icon sets found with config.toml files")
+        print_error("No icon sets found with config.toml files", Symbols.ERROR)
         return
 
-    print(f"Found {len(icon_dirs)} icon sets")
+    print_info(f"Found {len(icon_dirs)} icon sets", Symbols.FOUND)
 
-    # 处理每个图标集
-    results = []
-    with ThreadPoolExecutor() as executor:
-        # 并行处理每个图标集
-        futures = [executor.submit(process_icon_set, icon_dir) for icon_dir in icon_dirs]
-        for future in futures:
-            result = future.result()
-            if result:
-                results.append(result)
+    # Process each icon set
+    successful_builds = 0
+    for icon_dir in icon_dirs:
+        result = process_icon_set(icon_dir)
+        if result:
+            successful_builds += 1
 
-    # 清理临时文件
-    print("Cleaning up temporary files...")
-    shutil.rmtree(TEMP_DIR, ignore_errors=True)
+    # Clean up temporary files
+    print_step("Cleaning up temporary files...", Symbols.CLEANING)
+    try:
+        shutil.rmtree(TEMP_DIR, ignore_errors=True)
+        print_success("Temporary files cleaned", Symbols.CHECK)
+    except Exception as e:
+        print_warning(f"Issue occurred while cleaning temporary files: {e}")
 
-    print("Build complete!")
+    print_success(f"Build complete! Successfully built {successful_builds}/{len(icon_dirs)} fonts", Symbols.SUCCESS)
 
 if __name__ == "__main__":
     main()
