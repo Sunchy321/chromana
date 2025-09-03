@@ -7,6 +7,7 @@ import json
 import shutil
 import subprocess
 import glob
+import argparse
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 from read_config import Style, read_config, Symbol
@@ -1119,19 +1120,124 @@ def process_icon_set(icon_dir):
         print_error(f"Failed to generate TTF font for {font_name}")
         return None
 
-def main():
-    # Check dependencies
-    print_step("Starting Chromana font build", Symbols.BUILDING)
-    check_dependencies()
+def parse_arguments():
+    """Parse command line arguments"""
+    parser = argparse.ArgumentParser(
+        description="Build Chromana icon fonts",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python build.py                    # Build all icon sets
+  python build.py --icons magic      # Build only magic icon set
+  python build.py --icons magic lorcana  # Build magic and lorcana icon sets
+  python build.py -i magic           # Short form for --icons
+        """
+    )
 
-    # Find icon directories
+    parser.add_argument(
+        '--icons', '-i',
+        nargs='*',
+        metavar='ICON_SET',
+        help='Specify which icon sets to build (e.g., magic, lorcana). If not specified, all icon sets will be built.'
+    )
+
+    parser.add_argument(
+        '--list', '-l',
+        action='store_true',
+        help='List all available icon sets and exit'
+    )
+
+    parser.add_argument(
+        '--verbose', '-v',
+        action='store_true',
+        help='Enable verbose output'
+    )
+
+    return parser.parse_args()
+
+def list_available_icon_sets():
+    """List all available icon sets"""
+    print_info("Available icon sets:", Symbols.INFO)
+
     icon_dirs = [d for d in ICONS_DIR.iterdir() if d.is_dir() and (d / "config.toml").exists()]
 
     if not icon_dirs:
+        print_warning("No icon sets found with config.toml files", Symbols.WARNING)
+        return []
+
+    icon_sets = []
+    for icon_dir in icon_dirs:
+        try:
+            config = read_config(icon_dir / "config.toml")
+            name = config.get("name", icon_dir.name)
+            code = config.get("code", icon_dir.name)
+            version = config.get("version", "unknown")
+            symbol_count = len(config.get("symbols", []))
+
+            print_colored(f"  • {code} - {name} (v{version}) - {symbol_count} symbols", Colors.BRIGHT_CYAN, Symbols.BULLET)
+            icon_sets.append(code)
+        except Exception as e:
+            print_warning(f"Error reading config for {icon_dir.name}: {e}", Symbols.WARNING)
+
+    return icon_sets
+
+def main():
+    # Parse command line arguments
+    args = parse_arguments()
+
+    # If list flag is set, list available icon sets and exit
+    if args.list:
+        list_available_icon_sets()
+        return
+
+    # Check dependencies
+    print_step("Starting Chromana font build", Symbols.BUILDING)
+    if args.verbose:
+        print_info("Verbose mode enabled", Symbols.INFO)
+
+    check_dependencies()
+
+    # Find icon directories
+    all_icon_dirs = [d for d in ICONS_DIR.iterdir() if d.is_dir() and (d / "config.toml").exists()]
+
+    if not all_icon_dirs:
         print_error("No icon sets found with config.toml files", Symbols.ERROR)
         return
 
-    print_info(f"Found {len(icon_dirs)} icon sets", Symbols.FOUND)
+    # Filter icon directories based on command line arguments
+    if args.icons is not None:
+        if len(args.icons) == 0:
+            print_error("--icons flag specified but no icon sets provided", Symbols.ERROR)
+            print_info("Use --list to see available icon sets", Symbols.INFO)
+            return
+
+        # Filter directories based on specified icon sets
+        specified_icons = set(args.icons)
+        icon_dirs = []
+
+        for icon_dir in all_icon_dirs:
+            try:
+                config = read_config(icon_dir / "config.toml")
+                code = config.get("code", icon_dir.name)
+                if code in specified_icons:
+                    icon_dirs.append(icon_dir)
+                    specified_icons.remove(code)
+            except Exception as e:
+                print_warning(f"Error reading config for {icon_dir.name}: {e}", Symbols.WARNING)
+
+        # Check if any specified icon sets were not found
+        if specified_icons:
+            print_warning(f"The following icon sets were not found: {', '.join(specified_icons)}", Symbols.WARNING)
+            print_info("Use --list to see available icon sets", Symbols.INFO)
+
+        if not icon_dirs:
+            print_error("No valid icon sets found matching the specified criteria", Symbols.ERROR)
+            return
+
+        print_info(f"Building {len(icon_dirs)} specified icon sets", Symbols.FOUND)
+    else:
+        icon_dirs = all_icon_dirs
+        print_info(f"Found {len(icon_dirs)} icon sets", Symbols.FOUND)
 
     # Process each icon set
     successful_builds = 0
