@@ -1,6 +1,6 @@
 name = "Magic: The Gathering"
 code = "magic"
-version = "1.0.2"
+version = "1.1.0"
 
 [[example]]
 text = '<span class="magic-icon">{W}{U}{U}</span>, <span class="magic-icon">{T}</span>, Pay X <span class="magic-icon">{E}</span>: Draw X cards.'
@@ -764,6 +764,13 @@ category="loyalty"
 create-loyalty=true
 
 [[symbols]]
+name="loyalty+N"
+file="loyalty_plus_N.svg"
+ligature="[+N]"
+category="loyalty"
+create-loyalty=true
+
+[[symbols]]
 name="loyalty-1"
 file="loyalty_minus_1.svg"
 ligature="[-1]"
@@ -879,5 +886,12 @@ create-loyalty=true
 name="loyalty-X"
 file="loyalty_minus_X.svg"
 ligature="[-X]"
+category="loyalty"
+create-loyalty=true
+
+[[symbols]]
+name="loyalty-N"
+file="loyalty_minus_N.svg"
+ligature="[-N]"
 category="loyalty"
 create-loyalty=true

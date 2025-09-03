@@ -155,14 +155,12 @@ def add_text_to_svg(svg_path, text, output_path):
         # 使用字体高度的一半作为基准，再微调以达到视觉居中效果
         y_offset = height / 2 + text_height * 0.35
 
-        print(f"文本宽度: {text_width}, 文本高度: {text_height}, x偏移: {x_offset}, y偏移: {y_offset}")
-
         # 应用变换以使文本完全居中
         path_elem.set("transform", f"translate({x_offset}, {y_offset})")
 
         # 保存修改后的SVG
         tree.write(output_path, encoding="utf-8", xml_declaration=True)
-        print(f"SVG文件已成功创建（带路径文本）：{output_path}")
+        print(f"SVG文件已成功创建：{output_path}")
 
     except Exception as e:
         print(f"处理SVG时出错：{e}")
