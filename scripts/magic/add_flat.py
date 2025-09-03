@@ -20,7 +20,7 @@ os.makedirs(FLAT_OUTPUT_PATH, exist_ok=True)
 
 fill_map = {
     '#CAC5C0': '#000000',
-    '#FFFCD5': '#89723E',
+    '#FFFCD5': '#ABA18A',
     '#ABE1FA': '#0172BB',
     '#CCC2C0': '#281C1C',
     '#F9AA8F': '#FD2302',
@@ -29,7 +29,7 @@ fill_map = {
     '#C3BAB9': '#000000',
 
     # phyrexian colors
-    '#EAE3B1': '#89723E',
+    '#EAE3B1': '#ABA18A',
     '#8EBBD0': '#0172BB',
     '#9A8D89': '#281C1C',
     '#DF8065': '#FD2302',

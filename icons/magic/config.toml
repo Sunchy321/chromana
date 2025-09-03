@@ -1,6 +1,6 @@
 name = "Magic: The Gathering"
 code = "magic"
-version = "1.0.0"
+version = "1.0.1"
 
 [[example]]
 text = '<span class="magic-icon">{W}{U}{U}</span>, <span class="magic-icon">{T}</span>, Pay X <span class="magic-icon">{E}</span>: Draw X cards.'
