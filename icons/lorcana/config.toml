@@ -1,0 +1,12 @@
+name = "Lorcana"
+code = "lorcana"
+version = "0.1.0"
+
+[[categories]]
+name = "default"
+display-name = "默认分类"
+
+[[symbols]]
+name = "exert"
+file = "exert.svg"
+ligature = "{E}"

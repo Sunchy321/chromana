@@ -16,31 +16,39 @@ text = '由你操控的鹏洛客具有「<span class="magic-icon">[0]</span>：�
 
 [[categories]]
 name = "normal-mana"
-display_name = "基础法术力"
+display-name = "基础法术力"
 
 [[categories]]
 name = "number-mana"
-display_name = "数字法术力"
+display-name = "数字法术力"
 
 [[categories]]
 name = "hybrid-mana"
-display_name = "混血法术力"
+display-name = "混血法术力"
 
 [[categories]]
 name = "phyrexian-mana"
-display_name = "非瑞法术力"
+display-name = "非瑞法术力"
 
 [[categories]]
 name = "other"
-display_name = "其他符号"
+display-name = "其他符号"
 
 [[categories]]
 name = "special"
-display_name = "特殊符号"
+display-name = "特殊符号"
 
 [[categories]]
 name = "loyalty"
-display_name = "忠诚度"
+display-name = "忠诚度"
+
+[[styles]]
+name = "shadow"
+display-name = "阴影"
+
+[[styles]]
+name = "flat"
+display-name = "扁平"
 
 # 基础法术力
 [[symbols]]

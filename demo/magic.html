@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chromana-magic 符号展示</title>
+  <title>Chromana-magic</title>
   <link rel="stylesheet" href="./style.css">
   <link rel="stylesheet" href="./magic-1.1.0.css">
-  <script src="./action.js"></script>
+  <script src="./magic-action.js"></script>
 </head>
 <body>
   <!-- 浮空模式切换按钮 -->
@@ -14,8 +14,9 @@
     <div class="mode-switcher-title">模式切换</div>
     <div class="mode-options">
       <button class="mode-button active" data-mode="normal">普通</button>
-      <button class="mode-button" data-mode="shadow">阴影</button>
-      <button class="mode-button" data-mode="flat">扁平</button>
+      <button class='mode-button' data-mode='shadow'>阴影</button>
+<button class='mode-button' data-mode='flat'>扁平</button>
+
     </div>
   </div>
 
@@ -32,7 +33,6 @@
           <input type="range" id="fontSize" min="12" max="72" value="24">
           <span id="fontSizeDisplay">24px</span>
         </div>
-        <!-- 模式切换已移到浮空按钮 -->
         <button id="clearButton" class="test-button">清空</button>
       </div>
       <div id="testOutput" class="test-output magic-output"></div>
@@ -66,9 +66,9 @@
 }</code></pre>
         </div>
 
-        <h3>文本示例</h3>
-        <div class="text-examples">
-          
+       
+            <h3>文本示例</h3>
+            <div class="text-examples">
           <div class="example-text-container" style="width: 100%;">
             <div class="example-text-content">
               <div style="font-size: 14px; line-height: 1.6;">
@@ -105,7 +105,8 @@
             <div class="example-desc">示例 4</div>
           </div>
         
-        </div>
+            </div>
+        
       </div>
     </section>
 

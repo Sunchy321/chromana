@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chromana-lorcana</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./lorcana-0.1.0.css">
+  <script src="./lorcana-action.js"></script>
+</head>
+<body>
+  <!-- 浮空模式切换按钮 -->
+  <div class="mode-switcher">
+    <div class="mode-switcher-title">模式切换</div>
+    <div class="mode-options">
+      <button class="mode-button active" data-mode="normal">普通</button>
+      
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>Chromana-lorcana 符号展示</h1>
+
+    <!-- 连字测试工具 -->
+    <section class="section ligature-test">
+      <h2>连字可用性测试</h2>
+      <div class="test-controls">
+        <input type="text" id="testInput" class="test-input" placeholder="输入连字代码以测试">
+        <div class="font-size-control">
+          <label for="fontSize">字体大小:</label>
+          <input type="range" id="fontSize" min="12" max="72" value="24">
+          <span id="fontSizeDisplay">24px</span>
+        </div>
+        <button id="clearButton" class="test-button">清空</button>
+      </div>
+      <div id="testOutput" class="test-output lorcana-output"></div>
+      <p>提示: 输入符号代码来测试连字功能。启用"阴影模式"可以切换显示带阴影的符号。</p>
+    </section>
+
+    <!-- 示例部分 -->
+    <section class="section examples">
+      <h2>使用示例</h2>
+      <div class="example-container">
+        <h3>在HTML中使用</h3>
+        <div class="example-code">
+          <pre><code>&lt;!-- 在CSS中引入字体 --&gt;
+&lt;link rel="stylesheet" href="path/to/lorcana.css"&gt;
+
+&lt;!-- 使用图标 --&gt;
+&lt;i class="lorcana-icon"&gt;图标代码&lt;/i&gt;
+
+&lt;!-- 使用带阴影效果的图标 --&gt;
+&lt;i class="lorcana-icon shadow"&gt;图标代码&lt;/i&gt;</code></pre>
+        </div>
+
+        <h3>在CSS中使用</h3>
+        <div class="example-code">
+          <pre><code>.my-icon::before {
+  font-family: 'Chromana-lorcana';
+  content: '图标代码';
+  /* 其他样式 */
+  font-size: 24px;
+  color: #333;
+}</code></pre>
+        </div>
+
+       
+      </div>
+    </section>
+
+    <!-- 符号展示 -->
+    <section class="section">
+      <h2>符号展示</h2>
+      
+      <div class="symbol-category">
+        <h3 class="category-title">默认分类</h3>
+        <div class="icons-grid">
+          
+        <div class="icon-item">
+          <i class="lorcana-icon icon-display">{E}</i>
+          <div class="icon-name">exert</div>
+          <div class="icon-code">{E}</div>
+        </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

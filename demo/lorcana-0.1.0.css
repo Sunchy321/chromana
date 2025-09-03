@@ -1,20 +1,20 @@
-/* Chromana-magic Icon Font */
+/* Chromana-lorcana Icon Font */
 @font-face {
-  font-family: 'Chromana-magic';
-  src: url('../dist/magic/Chromana-magic-1.1.0.woff2') format('woff2'),
-       url('../dist/magic/Chromana-magic-1.1.0.woff') format('woff'),
-       url('../dist/magic/Chromana-magic-1.1.0.ttf') format('truetype');
+  font-family: 'Chromana-lorcana';
+  src: url('../dist/lorcana/Chromana-lorcana-0.1.0.woff2') format('woff2'),
+       url('../dist/lorcana/Chromana-lorcana-0.1.0.woff') format('woff'),
+       url('../dist/lorcana/Chromana-lorcana-0.1.0.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
-.magic-output {
-  font-family: 'Chromana-magic';
+.lorcana-output {
+  font-family: 'Chromana-lorcana';
   word-break: break-word;
 }
 
-.magic-icon {
-  font-family: 'Chromana-magic';
+.lorcana-icon {
+  font-family: 'Chromana-lorcana';
   font-weight: normal;
   font-style: normal;
   display: inline-block;
