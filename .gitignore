@@ -3,6 +3,7 @@
 
 # 构建产物
 temp/
+dist/
 
 # 日志
 npm-debug.log*
