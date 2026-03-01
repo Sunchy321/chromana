@@ -863,6 +863,8 @@ def generate_html(
       <button class="mode-button active" data-mode="normal">普通</button>
       {styles_html}
     </div>
+    <div class="dark-mode-divider"></div>
+    <button id="darkModeToggle" class="dark-mode-toggle">🌙 夜间模式</button>
   </div>
 
   <div class="container">

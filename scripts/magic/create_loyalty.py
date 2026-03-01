@@ -146,7 +146,7 @@ def add_text_to_svg(svg_path, text, output_path):
         # 创建路径元素
         path_elem = ET.SubElement(root, "path")
         path_elem.set("d", path_data)
-        path_elem.set("fill", "black")
+        path_elem.set("fill", "currentColor")
 
         # 计算居中位置
         x_offset = (width - text_width) / 2

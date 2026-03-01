@@ -78,4 +78,27 @@ document.addEventListener('DOMContentLoaded', function () {
             testOutput.textContent = testInput.value;
         });
     });
+
+    // 深色模式切换
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const prefersDark = localStorage.getItem('chromana-dark-mode') === 'true';
+
+    function applyDarkMode(isDark) {
+        if (isDark) {
+            document.body.classList.add('dark');
+            darkModeToggle.textContent = '\u2600\uFE0F \u767d\u5929\u6a21\u5f0f';
+        } else {
+            document.body.classList.remove('dark');
+            darkModeToggle.textContent = '\uD83C\uDF19 \u591c\u95f4\u6a21\u5f0f';
+        }
+        localStorage.setItem('chromana-dark-mode', isDark);
+    }
+
+    // 初始化深色模式状态
+    applyDarkMode(prefersDark);
+
+    darkModeToggle.addEventListener('click', function () {
+        const isDark = !document.body.classList.contains('dark');
+        applyDarkMode(isDark);
+    });
 });
